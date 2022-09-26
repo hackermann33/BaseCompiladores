@@ -1,0 +1,6 @@
+no include
+no printf
+int doble
+if for while
+function 
+
