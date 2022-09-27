@@ -1,4 +1,4 @@
-int y; 
+int y;
 int x = 10; 
 int o, p, r, s;
 int a = 1, b=2, c = 3;

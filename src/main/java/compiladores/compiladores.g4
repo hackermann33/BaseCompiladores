@@ -17,9 +17,11 @@ COM: ',';
 
 SUMA : '+' ;
 MULT : '*' ;
+DIFF : '-' ;
+DIVI : '/' ;
 
+AND : '&&';
    
-
 INT: 'int' ; // lo pongo ante de ID si no me lo captura!!!
 DOUBLE: 'double' ;
 
@@ -29,6 +31,9 @@ NUMERO : ('-')*(DIGITO)+ ;
 WS : [ \t\n\r] -> skip;
 OTRO : . ;
 
+
+/* ****************************************************************************** COMPILADOR C ****************************************************************************** */
+
 programa: instrucciones EOF ;
 
 instrucciones : instruccion instrucciones
@@ -36,47 +41,54 @@ instrucciones : instruccion instrucciones
               ;
 //terminamos cuando no està mas instrucciones (regla vacia)
 
-funcion_sin_param: INT ID PA PC;
-
 instruccion : bloque
             | declaracion
-            | funcion_sin_param
             // | asignacion
             // | inst_return
             // | inst_if 
             // | inst_for
             // | inst_while
-               ;
+            ;
 //si la llamo con un istrucion del java (problema porque seran funciones)
             
 bloque : LLA instrucciones LLC ;
 
-declaracion : INT bloque_declaracion PYC;
+declaracion : INT lista_declaracion PYC;
 
-bloque_declaracion : COM bloque_declaracion b ;
+lista_declaracion : bloque_declaracion bd ;
+
+bloque_declaracion : ID    
+                   | ID IGU NUMERO
+                   ;
                    
-b  : ID 
-   | ID IGU NUMERO
-   |
-   ;
+bd  : COM bloque_declaracion bd
+    |
+    ;
 
 
-
-
-
+/* ****************************************************************************** ARITMETICA ****************************************************************************** */
 opar  : exp opar
       | EOF
       ;
 
-exp : term t ;
+
+exp : term_log tl ;
+
+term_log : term t ;
 
 term : factor f ;
 
+tl: AND term_log tl
+  |
+  ;
+
 t : SUMA term t
+  | DIFF term t
   |
   ;
  
 f : MULT factor f
+  | DIVI factor f
   |
   ;
  
@@ -84,6 +96,9 @@ factor : NUMERO
        | ID // <- podria ser una funcion !!!
        | PA exp PC
        ;
+
+
+/* ****************************************************************************** OTRO ****************************************************************************** */
 
 
 // si: s EOF;

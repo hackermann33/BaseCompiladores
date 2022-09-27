@@ -13,7 +13,7 @@
             // Archivo a parsear
             "input": "input/aritmetica.txt",
             // Simbolo inicial
-            "startRule": "opar",//"programa",
+            "startRule": "opar",//"programa", 
             // Muestra Arbol Sintactico
             "printParseTree": true,
             "visualParseTree": true
