@@ -1,4 +1,4 @@
-grammar compiladores;
+grammar compilador;
 
 @header {
 package compiladores;
@@ -24,9 +24,14 @@ AND : '&&';
    
 INT: 'int' ; // lo pongo ante de ID si no me lo captura!!!
 DOUBLE: 'double' ;
+VOID: 'void';
+
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 NUMERO : ('-')*(DIGITO)+ ;
+
+NUMERO_INT : NUMERO;
+
 
 WS : [ \t\n\r] -> skip;
 OTRO : . ;
@@ -42,7 +47,9 @@ instrucciones : instruccion instrucciones
 //terminamos cuando no està mas instrucciones (regla vacia)
 
 instruccion : bloque
-            | declaracion
+            | declaracion_var
+            | declaracion_func
+            | implementacion_func
             // | asignacion
             // | inst_return
             // | inst_if 
@@ -53,24 +60,55 @@ instruccion : bloque
             
 bloque : LLA instrucciones LLC ;
 
-declaracion : INT lista_declaracion PYC;
+
+/* VARIABLES */ 
+declaracion_var : INT lista_declaracion PYC;
 
 lista_declaracion : bloque_declaracion bd ;
-
-bloque_declaracion : ID    
-                   | ID IGU NUMERO
-                   ;
                    
 bd  : COM bloque_declaracion bd
     |
     ;
 
+bloque_declaracion : ID    
+                   | ID IGU NUMERO
+                   ;
+
+
+
+/* FUNCIONES */ 
+
+declaracion_func : INT ID PA lista_params PC PYC;
+
+lista_params : param p
+             |
+             ;
+
+p : COM param p
+  |
+  ;
+
+param : INT ID
+      | INT
+      ;
+
+implementacion_func: INT ID PA lista_params_impl PC bloque;
+
+lista_params_impl : param_impl pi
+                  |
+                  ;
+
+pi : COM param_impl 
+   |
+   ;
+
+param_impl : INT ID
+           ;
 
 /* ****************************************************************************** ARITMETICA ****************************************************************************** */
 opar  : exp opar
       | EOF
       ;
-
 
 exp : term_log tl ;
 
