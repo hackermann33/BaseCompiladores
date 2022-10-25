@@ -1,12 +1,15 @@
 package compiladores.TablaSimbolos;
 
 
-enum TipoDato {
-    VOID,
-    INT,
-    DOUBLE
-}
+
 public abstract class Id {
+
+    public enum TipoDato {
+        VOID,
+        INT,
+        DOUBLE
+    }
+    
 
     private String nombre;
     private TipoDato tipo;
@@ -39,6 +42,10 @@ public abstract class Id {
     }
     public void setUsado(Boolean usado) {
         this.usado = usado;
+    }
+    @Override
+    public String toString() {
+        return "Id [nombre=" + nombre + ", tipo=" + tipo + ", inicializado=" + inicializado + ", usado=" + usado + "]";
     }
 
 }

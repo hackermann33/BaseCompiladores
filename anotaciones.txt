@@ -4,3 +4,46 @@ int doble
 if for while
 function 
 
+Còdigos Intermedios => adimensionales
+se independiza:
+    - lenguaje original
+    - HW final
+
+Còdigos Tres Direcciones (TAC)
+
+    x = y <op> z --> Instrucciòn base
+    x = y        --> solo dos direcciones
+    label l0
+    jmp l0       --> solo una direccion
+    ifjmp x, l0
+
+    Tres Direcciones = (hasta T. D. de memoria)
+
+ADD AX, BX, CX 
+
+TAC es uno de lo mas usado por su CLARIDAD
+
+Generador de nombres de variables temporales y etiquetas
+
+Declaracion toda afuera porque estamos tratando de escribir solo
+una version sencilla de el ASM. Solo instrucciones che hacen algo!!!
+
+y = x * 2 + z / 5; 
+
+t0 = x * 2
+t1 = z / 5
+t2 = t0 + t1
+y = t2
+
+-----------------------
+
+y = (x - 1) * (x - 1);
+
+t0 = x - 1
+t1 = x - 1
+t2 = t0 * t1
+y = t2
+
+optimizando...
+t0 = x - 1
+y = t0 * t0

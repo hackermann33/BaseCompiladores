@@ -9,9 +9,9 @@
             "type": "antlr-debug",
             "request": "launch",
             // Archivo con la gramatica
-            "grammar": "${file}",
+            "grammar": "src/main/java/compiladores/compilador.g4",
             // Archivo a parsear
-            "input": "input/miprograma_simple.c",
+            "input": "input/declaraciones.c",
             // Simbolo inicial
             "startRule": "programa", //"opar" 
             // Muestra Arbol Sintactico

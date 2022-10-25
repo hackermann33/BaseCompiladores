@@ -6,6 +6,10 @@ package compiladores;
 
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
+fragment NUMERO : (DIGITO)+ ;
+
+
+
 
 PA : '(' ;
 PC : ')' ;
@@ -21,6 +25,12 @@ DIFF : '-' ;
 DIVI : '/' ;
 
 AND : '&&';
+OR  : '||';
+EQ  : '==';
+GE : '>=';
+LE : '<=';
+LT  : '<';
+GT  : '>';
    
 INT: 'int' ; // lo pongo ante de ID si no me lo captura!!!
 DOUBLE: 'double' ;
@@ -28,18 +38,95 @@ VOID: 'void';
 
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-NUMERO : ('-')*(DIGITO)+ ;
 
-NUMERO_INT : NUMERO;
+NUMERO_INT : ('-')*(NUMERO);
 
 
 WS : [ \t\n\r] -> skip;
+COMMENT : '/*' .*? '*/' -> skip;
+LINE_COMMENT
+    : '//' ~[\r\n]* -> skip;
 OTRO : . ;
 
 
 /* ****************************************************************************** COMPILADOR C ****************************************************************************** */
 
-programa: instrucciones EOF ;
+programa: instrucciones_externa EOF ;
+
+instrucciones_externa: | instruccion_externa instrucciones_externa
+                       |
+                       ;
+
+instruccion_externa: definicion_funcion
+  | declaracion
+  ;
+
+          
+/* DECLARACIONES */ 
+
+declaracion
+      : //specificador_tipo PYC| 
+        specificador_tipo init_lista_declarador PYC
+      ;
+
+init_lista_declarador
+                : init_declarador
+                | init_lista_declarador COM init_declarador
+                ;
+
+init_declarador 
+          : declarador
+          | declarador IGU NUMERO_INT /* TODO: NMERO_INT ==> expression */ 
+          ;
+
+specificador_tipo : INT 
+                  | VOID
+                  | DOUBLE
+                  ;
+
+declarador
+	: ID #identificador
+	| declarador PA lista_parametros PC #declarador_funcion 
+	// | declarador PA PC
+	;
+
+lista_parametros
+	: declaracion_parametro
+	| lista_parametros COM declaracion_parametro
+  |
+  ;
+
+
+declaracion_parametro
+	: specificador_tipo declarador 
+	| specificador_tipo
+	;
+
+
+definicion_funcion
+	: specificador_tipo declarador bloque	;
+
+
+bloque
+	: LLA instrucciones LLC 
+  ;
+
+lista_elem_bloque:
+	| lista_elem_bloque elem_bloque
+  |
+	;
+
+elem_bloque
+	: declaracion
+	| statement
+	;
+
+statement
+	: bloque
+	// | expression_statement
+	// | selection_statement
+	// | iteration_statement
+	;
 
 instrucciones : instruccion instrucciones
               |  
@@ -47,70 +134,36 @@ instrucciones : instruccion instrucciones
 //terminamos cuando no està mas instrucciones (regla vacia)
 
 instruccion : bloque
-            | declaracion_var
-            | declaracion_func
-            | implementacion_func
-            // | asignacion
+            | declaracion
+            | asignacion
             // | inst_return
             // | inst_if 
             // | inst_for
             // | inst_while
-            ;
-//si la llamo con un istrucion del java (problema porque seran funciones)
-            
-bloque : LLA instrucciones LLC ;
+            ;  
 
+// expresion : ';'
+//           | exp ';'
+//           ;
 
-/* VARIABLES */ 
-declaracion_var : INT lista_declaracion PYC;
+expresion  : //asignacion COM exp
+     //| asignacion
+     NUMERO_INT
+     ;
 
-lista_declaracion : bloque_declaracion bd ;
-                   
-bd  : COM bloque_declaracion bd
-    |
-    ;
+asignacion
+	: //expresion_condicional 
+	  lista_asignacion PYC
+	;
 
-bloque_declaracion : ID    
-                   | ID IGU NUMERO
-                   ;
-
-
-
-/* FUNCIONES */ 
-
-declaracion_func : INT ID PA lista_params PC PYC;
-
-lista_params : param p
-             |
-             ;
-
-p : COM param p
-  |
+lista_asignacion: ID IGU expresion COM lista_asignacion
+  | ID IGU expresion
   ;
 
-param : INT ID
-      | INT
-      ;
-
-implementacion_func: INT ID PA lista_params_impl PC bloque;
-
-lista_params_impl : param_impl pi
-                  |
-                  ;
-
-pi : COM param_impl 
-   |
-   ;
-
-param_impl : INT ID
-           ;
 
 /* ****************************************************************************** ARITMETICA ****************************************************************************** */
-opar  : exp opar
-      | EOF
-      ;
 
-exp : term_log tl ;
+
 
 term_log : term t ;
 
@@ -124,15 +177,15 @@ t : SUMA term t
   | DIFF term t
   |
   ;
- 
+
 f : MULT factor f
   | DIVI factor f
   |
   ;
  
-factor : NUMERO 
+factor : NUMERO_INT
        | ID // <- podria ser una funcion !!!
-       | PA exp PC
+       | PA expresion PC
        ;
 
 

@@ -12,10 +12,11 @@ public class TablaSimbolos {
 
     private TablaSimbolos() {
         tabla = new LinkedList<Map<String,Id>>();
+        tabla.add(new HashMap<String, Id>());
     }
     
-    public TablaSimbolos getInstanceOf(){
-        if (tabla == null){
+    public static TablaSimbolos getInstanceOf(){
+        if (instancia == null){
             instancia = new TablaSimbolos();
         }
         return instancia;
@@ -41,8 +42,10 @@ public class TablaSimbolos {
     }
 
     public void addSimbolo(Id id) {
-        assert(tabla.get(tabla.size()-1).get(id.getNombre()) == null);
-        tabla.get(tabla.size()-1).put(id.getNombre(), id);
+        if(!tabla.isEmpty()){
+            assert(tabla.get(tabla.size()-1).get(id.getNombre()) == null);
+            tabla.get(tabla.size()-1).put(id.getNombre(), id);
+        }
     }
 
     /**
