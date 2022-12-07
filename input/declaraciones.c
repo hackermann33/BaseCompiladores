@@ -13,10 +13,10 @@
 
 int main()
 {
-    int a;
+    int a, b;
     {
-        int a, b = 0;
-    
+        int a;
+        b = a;
     }// a = 3;
     // b= 8;
     a = 4;

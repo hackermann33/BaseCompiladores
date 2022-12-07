@@ -11,6 +11,7 @@ import compiladores.compiladorParser.BloqueContext;
 import compiladores.compiladorParser.Declaracion_parametroContext;
 import compiladores.compiladorParser.Declarador_funcionContext;
 import compiladores.compiladorParser.Expresion_asignacionContext;
+import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.IdentificadorContext;
 import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.ProgramaContext;
@@ -156,12 +157,29 @@ public class Escucha extends compiladorBaseListener {
                 System.out.println("Error: variable " + nombreCorrenteVariable + " no està declarada");
             }
             else{
-                assert(idCorrente instanceof Variable);
                 idCorrente.setInicializado(true);
             }
         }
         // TODO Auto-generated method stub
         super.exitExpresion_asignacion(ctx);
+    }
+
+    @Override
+    public void exitExpresion_primaria(Expresion_primariaContext ctx) {
+        String nombreCorrenteVariable;
+        Id idCorrente;
+        if(ctx.ID() != null){
+            nombreCorrenteVariable =  ctx.ID().toString();
+            if((idCorrente = ts.buscarSimbolo(nombreCorrenteVariable)) == null){
+                System.out.println("Error: variable " + nombreCorrenteVariable + " no està declarada");
+            }
+            else{
+                idCorrente.setUsado(true);
+            }
+        }
+
+        // TODO Auto-generated method stub
+        super.exitExpresion_primaria(ctx);
     }
     
 
