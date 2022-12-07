@@ -10,7 +10,6 @@ public abstract class Id {
         DOUBLE
     }
     
-
     private String nombre;
     private TipoDato tipo;
     private Boolean inicializado = false;

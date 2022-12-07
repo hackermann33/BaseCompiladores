@@ -34,11 +34,11 @@ public class TablaSimbolos {
     
     /**
      * Function that remove a context from the symbol table
-     * @return the number of current contexts is returned  
+     * @return the number of current contexts
      */
-    public void delContexto() {
-        assert(tabla.size() > 0);
-        tabla.add(new HashMap<String, Id>());
+    public int delContexto() {
+        tabla.remove(tabla.size()-1);
+        return tabla.size();
     }
 
     public void addSimbolo(Id id) {
@@ -81,6 +81,23 @@ public class TablaSimbolos {
         if(tabla.size() == 0)
             return null;
         return tabla.get(tabla.size()-1).get(idNombre);
+    }
+
+    public void imprimeWarnings() {
+        String tipo;
+        Map<String,Id> con = tabla.get(tabla.size()-1);
+        for(Id id: con.values()){
+            tipo = (id instanceof Funcion) ? "funcion" : "variable";
+            if(!id.getUsado())
+                System.out.println("Warning: " + tipo + " " + id.getNombre() + " no ha sido usada!");
+            if(!id.getInicializado())
+                System.out.println("Warning: " + tipo + " " + id.getNombre() + " no ha sido inicializada!");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "TablaSimbolos [tabla=" + tabla + "]";
     }
 
 }

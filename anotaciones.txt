@@ -17,6 +17,10 @@ Còdigos Tres Direcciones (TAC)
     jmp l0       --> solo una direccion
     ifjmp x, l0
 
+    push x --> por las funciones
+    jmp f
+    pop y 
+
     Tres Direcciones = (hasta T. D. de memoria)
 
 ADD AX, BX, CX 
@@ -47,3 +51,63 @@ y = t2
 optimizando...
 t0 = x - 1
 y = t0 * t0
+
+----------------
+
+if (x >= 0)
+    y = x:
+else
+    y = -x:
+
+
+t0 = x >= 0
+ifnjmp t0, l0 /si es falso
+y = x
+jmp l1
+label l0
+y = -x
+label l1
+
+------------
+
+for (i=0; i < 0; i++)
+    y += i;
+
+
+i = 0
+t0 = i < 0
+label l0
+ifnjmp t0, l1
+t1 = y + i
+y = t1
+i = i + 1
+jmp l0
+
+label l1
+
+
+FUNCION 
+
+y = suma(x, 5);
+...
+int suma(int a, int b) {
+    return a + b;
+}
+
+push x
+push 5
+push l0
+jmp l1
+label l0
+pop y
+
+
+...
+
+label l1
+pop t0
+pop b
+pop a 
+t1 = a + b 
+push t1 
+jmp t0

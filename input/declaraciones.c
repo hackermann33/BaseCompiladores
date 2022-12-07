@@ -1,18 +1,27 @@
-//int f(int a);
-//int a(int a, int a()) = 9;
+// int f(int a);
+// int a(int a, int a()) = 9;
 
-//int a, int a = 0; //, a(int a, int a) = 9; //// Genera errore undexpected type_id ==> expected ID
+// int a, int a = 0; //, a(int a, int a) = 9; //// Genera errore undexpected type_id ==> expected ID
 
 // int a(a, b); // Genera errore undexpected ID ==> expected type_id
 
-//int f(int a, int b) = 3; <= CONTROLLA A RUN-TIME PERCHÈ non genera errore
+// int f(int a, int b) = 3; <= CONTROLLA A RUN-TIME PERCHÈ non genera errore
 
-int f(int, int a, int), fa;
+//int f(int, double, int, double), fa;
 
-int a = 0, b, c, f;
+//int a = (b * c / 9), b, c;
 
-
-//int b, f(int a, int b);
+int main()
+{
+    int a;
+    {
+        int a, b = 0;
+    
+    }// a = 3;
+    // b= 8;
+    a = 4;
+}
+// int b, f(int a, int b);
 
 // int main() {
 

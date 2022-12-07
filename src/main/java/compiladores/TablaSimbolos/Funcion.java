@@ -4,23 +4,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Funcion extends Id {
-    private List<Variable> args;
+    private List<TipoDato> args;
 
     public Funcion() {
-        this.args = new LinkedList<Variable>();
+        this.args = new LinkedList<TipoDato>();
     }
 
-    public void addArgumento(Variable id){
+    public void addArgumento(TipoDato id){
         args.add(id);
     }
 
-    public List<Variable> getArgs() {
+    public List<TipoDato> getArgs() {
         return args;
     }
 
     @Override
     public String toString() {
-        return "Funcion [args=" + args + "]";
+        return "Funcion: [tipo=" + super.getTipo() + ", nombre=" + super.getNombre() + ", args=" + args + "]";
     }    
     
 }
