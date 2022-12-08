@@ -72,9 +72,9 @@ instrucciones_externa
 	: instruccion_externa instrucciones_externa
 	|;
 
-instruccion_externa: definicion_funcion | declaracion;
+instruccion_externa: definicion_funcion | declaracion | PYC;
 
-definicion_funcion: specificador_tipo declarador bloque;
+definicion_funcion: specificador_tipo init_declarador bloque;
 
 bloque: LLA LLC | LLA instrucciones LLC;
 
@@ -83,7 +83,7 @@ instrucciones:instruccion instrucciones
               ;
 
 
-instruccion: declaracion | statement;
+instruccion: declaracion | statement | PYC;
 
 
 /* EXPRESIONES */
@@ -170,8 +170,8 @@ init_declarador
 specificador_tipo: INT | VOID | DOUBLE;
 
 declarador
-	: ID								# identificador
-	| declarador PA lista_parametros PC	# declarador_funcion; // | declarador PA PC
+	: ID								
+	| declarador PA lista_parametros PC; // | declarador PA PC
 
 lista_parametros
 	: declaracion_parametro

@@ -157,19 +157,11 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSpecificador_tipo(compiladorParser.Specificador_tipoContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code declarador_funcion}
-	 * labeled alternative in {@link compiladorParser#declarador}.
+	 * Visit a parse tree produced by {@link compiladorParser#declarador}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDeclarador_funcion(compiladorParser.Declarador_funcionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code identificador}
-	 * labeled alternative in {@link compiladorParser#declarador}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIdentificador(compiladorParser.IdentificadorContext ctx);
+	T visitDeclarador(compiladorParser.DeclaradorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#lista_parametros}.
 	 * @param ctx the parse tree

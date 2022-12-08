@@ -2,12 +2,14 @@ package compiladores.TablaSimbolos;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class Funcion extends Id {
-    private List<TipoDato> args;
+    private List<TipoDato> args = new LinkedList<TipoDato>();
 
-    public Funcion() {
-        this.args = new LinkedList<TipoDato>();
+    public Funcion(TipoDato td, String nombre) {
+        super.setNombre(nombre);
+        super.setTipo(td);
     }
 
     public void addArgumento(TipoDato id){
@@ -20,7 +22,9 @@ public class Funcion extends Id {
 
     @Override
     public String toString() {
-        return "Funcion: [tipo=" + super.getTipo() + ", nombre=" + super.getNombre() + ", args=" + args + "]";
+        StringJoiner joiner = new StringJoiner(",");
+        args.forEach(item -> joiner.add(item.toString()));
+        return super.toString() + "(" + joiner.toString() + ")";
     }    
     
 }

@@ -306,25 +306,13 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeclarador_funcion(compiladorParser.Declarador_funcionContext ctx) { }
+	@Override public void enterDeclarador(compiladorParser.DeclaradorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDeclarador_funcion(compiladorParser.Declarador_funcionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIdentificador(compiladorParser.IdentificadorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIdentificador(compiladorParser.IdentificadorContext ctx) { }
+	@Override public void exitDeclarador(compiladorParser.DeclaradorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

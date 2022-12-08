@@ -250,29 +250,15 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitSpecificador_tipo(compiladorParser.Specificador_tipoContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code declarador_funcion}
-	 * labeled alternative in {@link compiladorParser#declarador}.
+	 * Enter a parse tree produced by {@link compiladorParser#declarador}.
 	 * @param ctx the parse tree
 	 */
-	void enterDeclarador_funcion(compiladorParser.Declarador_funcionContext ctx);
+	void enterDeclarador(compiladorParser.DeclaradorContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code declarador_funcion}
-	 * labeled alternative in {@link compiladorParser#declarador}.
+	 * Exit a parse tree produced by {@link compiladorParser#declarador}.
 	 * @param ctx the parse tree
 	 */
-	void exitDeclarador_funcion(compiladorParser.Declarador_funcionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code identificador}
-	 * labeled alternative in {@link compiladorParser#declarador}.
-	 * @param ctx the parse tree
-	 */
-	void enterIdentificador(compiladorParser.IdentificadorContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code identificador}
-	 * labeled alternative in {@link compiladorParser#declarador}.
-	 * @param ctx the parse tree
-	 */
-	void exitIdentificador(compiladorParser.IdentificadorContext ctx);
+	void exitDeclarador(compiladorParser.DeclaradorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#lista_parametros}.
 	 * @param ctx the parse tree

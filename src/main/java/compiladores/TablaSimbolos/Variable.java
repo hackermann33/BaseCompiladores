@@ -10,4 +10,9 @@ public class Variable extends Id{
     public Variable() {
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
 }

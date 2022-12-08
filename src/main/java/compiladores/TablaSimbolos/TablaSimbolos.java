@@ -41,11 +41,13 @@ public class TablaSimbolos {
         return tabla.size();
     }
 
+    /* Function that add a symbol in the current context. 
+     */
     public void addSimbolo(Id id) {
         if(!tabla.isEmpty()){
-            assert(tabla.get(tabla.size()-1).get(id.getNombre()) == null);
             tabla.get(tabla.size()-1).put(id.getNombre(), id);
         }
+        return ;
     }
 
     /**
@@ -82,22 +84,30 @@ public class TablaSimbolos {
             return null;
         return tabla.get(tabla.size()-1).get(idNombre);
     }
-
     public void imprimeWarnings() {
         String tipo;
         Map<String,Id> con = tabla.get(tabla.size()-1);
         for(Id id: con.values()){
-            tipo = (id instanceof Funcion) ? "funcion" : "variable";
+            tipo = (id instanceof Funcion) ? "función" : "variable";
             if(!id.getUsado())
-                System.out.println("Warning: " + tipo + " " + id.getNombre() + " no ha sido usada!");
+                System.out.println("warning: "+"La " + tipo + " \'" + id.getNombre() + "\' nunca se utiliza");
             if(!id.getInicializado())
-                System.out.println("Warning: " + tipo + " " + id.getNombre() + " no ha sido inicializada!");
+                System.out.println("warning: "+"La " + tipo + " \'" + id.getNombre() + "\' no está inicializada");
         }
     }
 
     @Override
     public String toString() {
-        return "TablaSimbolos [tabla=" + tabla + "]";
+
+        String str = "tabla de simbolos: \n";
+        for(int i = 0; i < tabla.size(); i++){
+            str += "contexto: " + i;
+            for(String k : tabla.get(i).keySet()){
+                str += "\n    " + k + " -> " + tabla.get(i).get(k);
+            }
+            str +="\n";
+        }
+        return str;// return "TablaSimbolos: tabla=" + tabla;
     }
 
 }

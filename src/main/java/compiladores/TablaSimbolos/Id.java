@@ -42,9 +42,10 @@ public abstract class Id {
     public void setUsado(Boolean usado) {
         this.usado = usado;
     }
+
     @Override
     public String toString() {
-        return "Id [nombre=" + nombre + ", tipo=" + tipo + ", inicializado=" + inicializado + ", usado=" + usado + "]";
+        return tipo.toString() + " " + nombre;
     }
 
 }
