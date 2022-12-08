@@ -11,15 +11,22 @@
 
 //int a = (b * c / 9), b, c;
 
+int f();
+
 int main()
 {
     int a, b;
     {
         int a;
         b = a;
+        a = f();
     }// a = 3;
     // b= 8;
     a = 4;
+}
+
+int f() {
+    main();
 }
 // int b, f(int a, int b);
 

@@ -2,20 +2,21 @@ package compiladores;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import compiladores.TablaSimbolos.Funcion;
-import compiladores.TablaSimbolos.Id;
-import compiladores.TablaSimbolos.TablaSimbolos;
-import compiladores.TablaSimbolos.Variable;
-import compiladores.TablaSimbolos.Id.TipoDato;
 import compiladores.compiladorParser.BloqueContext;
 import compiladores.compiladorParser.Declaracion_parametroContext;
 import compiladores.compiladorParser.Declarador_funcionContext;
+import compiladores.compiladorParser.Definicion_funcionContext;
 import compiladores.compiladorParser.Expresion_asignacionContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.IdentificadorContext;
 import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.ProgramaContext;
 import compiladores.compiladorParser.Specificador_tipoContext;
+import compiladores.TablaSimbolos.Funcion;
+import compiladores.TablaSimbolos.Id;
+import compiladores.TablaSimbolos.Id.TipoDato;
+import compiladores.TablaSimbolos.TablaSimbolos;
+import compiladores.TablaSimbolos.Variable;
 
 
 
@@ -69,7 +70,7 @@ public class Escucha extends compiladorBaseListener {
     /* Empiezo la declaracion */
     @Override
     public void enterInit_declarador(Init_declaradorContext ctx) {
-        startDeclaracion = true;
+        //startDeclaracion = true;
         super.enterInit_declarador(ctx);
     }
 
@@ -94,14 +95,16 @@ public class Escucha extends compiladorBaseListener {
      */
     @Override
     public void enterDeclarador_funcion(Declarador_funcionContext ctx) {
-        if(startDeclaracion){
-            currentFun = new Funcion();
-            currentFun.setTipo(currentSpecificador);
-            currentFun.setNombre(currentId);
-        }
+        // if(startDeclaracion){
+        //     currentFun = new Funcion();
+        //     currentFun.setTipo(currentSpecificador);
+        //     currentFun.setNombre(currentId);
+        // }
         super.enterDeclarador_funcion(ctx);
         
     }
+
+    
 
     /* Guardo el identificador de la declaracion */
     @Override
@@ -120,26 +123,25 @@ public class Escucha extends compiladorBaseListener {
         super.exitDeclaracion_parametro(ctx);
     }
 
-    /* Guardo la declaracion en la tabla de simbolos */
+    /* Guardo la declaracion de una variable en la tabla de simbolos */
+    /*TODO: Controlla che una funzione non abbia l'uguale ' f() = 10' */
     @Override
     public void exitInit_declarador(Init_declaradorContext ctx) {
         Id currentDec;
-        if (currentFun == null) {
+        if (currentFun == null && startDeclaracion) {
             assert (currentSpecificador != null);
             assert (currentId != null);
             currentDec = new Variable(currentSpecificador, currentId);
             if (ctx.getChildCount() == 3)
                 currentDec.setInicializado(true);
-        } else {
-            currentDec = currentFun;
-            currentFun = null;
-        }
 
-        if (ts.buscarSimboloLocal(currentDec.getNombre()) == null) 
-            ts.addSimbolo(currentDec);
-        else 
-            System.out.println("Error: Identificador " + "\'" + currentDec.getNombre() + "\' ya usado en esto contexto!");
-        startDeclaracion = false;
+        
+            if (ts.buscarSimboloLocal(currentDec.getNombre()) == null) 
+                ts.addSimbolo(currentDec);
+            else 
+                System.out.println("Error: Identificador " + "\'" + currentDec.getNombre() + "\' ya usado en esto contexto!");
+            startDeclaracion = false;
+        }
         super.exitInit_declarador(ctx);
     }
 
@@ -180,6 +182,39 @@ public class Escucha extends compiladorBaseListener {
 
         // TODO Auto-generated method stub
         super.exitExpresion_primaria(ctx);
+    }
+
+    @Override
+    public void exitDefinicion_funcion(Definicion_funcionContext ctx) {
+        // TODO Auto-generated method stub
+        startDeclaracion = false;
+        currentFun = null;
+        super.exitDefinicion_funcion(ctx);
+    }
+
+    @Override
+    public void enterDefinicion_funcion(Definicion_funcionContext ctx) {
+        startDeclaracion = true;
+        super.enterDefinicion_funcion(ctx);
+    }
+
+
+    /* Qui salvo le funzioni */
+    @Override
+    public void exitDeclarador_funcion(Declarador_funcionContext ctx) {
+        // TODO Auto-generated method stub
+
+        Id currentDec;
+        
+        currentDec = currentFun;
+        currentFun = null;
+
+        if (ts.buscarSimboloLocal(currentDec.getNombre()) == null) 
+            ts.addSimbolo(currentDec);
+        else 
+            System.out.println("Error: Identificador " + "\'" + currentDec.getNombre() + "\' ya usado en esto contexto!");
+        startDeclaracion = false;
+        super.exitDeclarador_funcion(ctx);
     }
     
 
