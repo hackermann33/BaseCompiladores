@@ -45,7 +45,7 @@ public abstract class Id {
 
     @Override
     public String toString() {
-        return tipo.toString() + " " + nombre;
+        return tipo.toString().toLowerCase() + " " + nombre;
     }
 
 }

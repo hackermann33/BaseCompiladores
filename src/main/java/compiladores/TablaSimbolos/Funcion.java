@@ -23,7 +23,7 @@ public class Funcion extends Id {
     @Override
     public String toString() {
         StringJoiner joiner = new StringJoiner(",");
-        args.forEach(item -> joiner.add(item.toString()));
+        args.forEach(item -> joiner.add(item.toString().toLowerCase()));
         return super.toString() + "(" + joiner.toString() + ")";
     }    
     

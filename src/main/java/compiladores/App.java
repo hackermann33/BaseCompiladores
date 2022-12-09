@@ -23,12 +23,26 @@ public class App {
         // create Listener
         compiladorBaseListener escucha = new Escucha();
 
+        System.out.println(((Escucha) escucha).errors);
+
         // Conecto el objeto con Listeners al parser
         parser.addParseListener(escucha);
-
+        
+        
         // Solicito al parser que comience indicando una regla gramatical
         // En este caso la regla es el simbolo inicial
+        
         ParseTree tree =  parser.programa();
+
+        boolean err = (((Escucha) escucha).errors);
+
+
+        if(err || parser.getNumberOfSyntaxErrors() > 0){
+            System.out.println("Algun error... termino");
+            return ;
+        }
+        System.out.println("Ningun error, Continuo..");
+
         // Conectamos el visitor
         Caminante visitor = new Caminante();
         //visitor.visit(tree);

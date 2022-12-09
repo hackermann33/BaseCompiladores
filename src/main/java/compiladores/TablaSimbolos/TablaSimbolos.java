@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import compiladores.Colors;
+
 public class TablaSimbolos {
+    public static final String ANSI_RESET = "\u001B[0m";
+
     private static TablaSimbolos instancia = null;
     
     private List<Map<String,Id>> tabla = null;
@@ -86,26 +90,42 @@ public class TablaSimbolos {
     }
     public void imprimeWarnings() {
         String tipo;
+        String fin;
         Map<String,Id> con = tabla.get(tabla.size()-1);
         for(Id id: con.values()){
             tipo = (id instanceof Funcion) ? "función" : "variable";
+            fin = (id instanceof Funcion) ? "definida" : "inicializada";
+            
             if(!id.getUsado())
-                System.out.println("warning: "+"La " + tipo + " \'" + id.getNombre() + "\' nunca se utiliza");
+                System.err.println(Colors.CYAN_BOLD + "warning: "+"La " + tipo + " \'" + id.getNombre() + "\' nunca se utiliza" + Colors.ANSI_RESET);
             if(!id.getInicializado())
-                System.out.println("warning: "+"La " + tipo + " \'" + id.getNombre() + "\' no está inicializada");
+                System.err.println(Colors.CYAN_BOLD + "warning: "+"La " + tipo + " \'" + id.getNombre() + "\' no está " + fin + Colors.ANSI_RESET);
         }
     }
 
     @Override
     public String toString() {
 
-        String str = "tabla de simbolos: \n";
+        String str = "Tabla de símbolos:\n";
+
+
+    
+        String leftAlignFormat = " %-3s | %-5s | %-27s | %-6s | %-7s |\n";
+
+        
+        str+=("+----+-------+-----------------------------+--------+---------+\n");
+        str+=(" CTX |  KEY  |            VALUE            |  INIT  |  USADA  |\n");
+        str+=("+----+-------+-----------------------------+--------+---------+\n");
+        
         for(int i = 0; i < tabla.size(); i++){
-            str += "contexto: " + i;
             for(String k : tabla.get(i).keySet()){
-                str += "\n    " + k + " -> " + tabla.get(i).get(k);
+                Id val = tabla.get(i).get(k);
+                str += String.format(leftAlignFormat, i, k, val, val.getInicializado(), val.getUsado());
             }
-            str +="\n";
+            if(!tabla.get(i).keySet().isEmpty())
+                str+=("+----+-------+-----------------------------+--------+---------+\n");
+
+            //str +="\n";
         }
         return str;// return "TablaSimbolos: tabla=" + tabla;
     }
