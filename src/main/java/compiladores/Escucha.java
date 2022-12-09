@@ -29,7 +29,7 @@ public class Escucha extends compiladorBaseListener {
     private int contexto = 0;
     private String tablaContextosStr = "";
     private TablaSimbolos ts;
-    private TipoDato currentSpecificador = null;
+    private TipoDato specificadorActual = null;
     private boolean definicion = false;
     public boolean errors = false;
 
@@ -47,12 +47,12 @@ public class Escucha extends compiladorBaseListener {
         
         tablaContextosStr += ts;
         try {
-            FileWriter myWriter = new FileWriter("tabla_contexto.txt");
+            FileWriter escritor = new FileWriter("tabla_contexto.txt");
             File f = new File("tabla_contexto.txt");
-            myWriter.write(tablaContextosStr);
+            escritor.write(tablaContextosStr);
             System.out.println(
                     "> archivo con tablas de símbolos guardado correctamente en \'"+ f.getAbsolutePath() + "\'");
-            myWriter.close();
+            escritor.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -87,7 +87,7 @@ public class Escucha extends compiladorBaseListener {
     public void exitSpecificador_tipo(Specificador_tipoContext ctx) {
         TipoDato res = TipoDato.valueOf(ctx.getStart().getText().toUpperCase());
 
-        currentSpecificador = res; /* function or varialble */
+        specificadorActual = res; /* function or varialble */
         super.exitSpecificador_tipo(ctx);
     }
 
@@ -99,13 +99,13 @@ public class Escucha extends compiladorBaseListener {
     @Override
     public void exitExpresion_asignacion(Expresion_asignacionContext ctx) {
 
-        String nombreCorrenteVariable;
+        String nombreActualVariable;
         Id idCorrente;
         if (ctx.ID() != null) {
-            nombreCorrenteVariable = ctx.ID().toString();
-            if ((idCorrente = ts.buscarSimbolo(nombreCorrenteVariable)) == null) {
+            nombreActualVariable = ctx.ID().toString();
+            if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) == null) {
                 System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Uso del identificador no declarado \'"
-                        + nombreCorrenteVariable + "\' " + Colors.ANSI_RESET);
+                        + nombreActualVariable + "\' " + Colors.ANSI_RESET);
                 errors = true;
             } else {
                 idCorrente.setInicializado(true);
@@ -116,13 +116,13 @@ public class Escucha extends compiladorBaseListener {
 
     @Override
     public void exitExpresion_primaria(Expresion_primariaContext ctx) {
-        String nombreCorrenteVariable;
+        String nombreActualVariable;
         Id idCorrente;
         if (ctx.ID() != null) {
-            nombreCorrenteVariable = ctx.ID().toString();
-            if ((idCorrente = ts.buscarSimbolo(nombreCorrenteVariable)) == null) {
+            nombreActualVariable = ctx.ID().toString();
+            if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) == null) {
                 System.out.println(Colors.RED_BOLD + "error: Uso del identificador no declarado \'"
-                        + nombreCorrenteVariable + "\' " + Colors.ANSI_RESET);
+                        + nombreActualVariable + "\' " + Colors.ANSI_RESET);
                 errors = true;
             } else {
                 idCorrente.setUsado(true);
@@ -137,26 +137,26 @@ public class Escucha extends compiladorBaseListener {
 
     @Override
     public void exitInit_declarador(Init_declaradorContext ctx) {
-        String nombre = "";
+        String nombreId = "";
         Id id;
         if (((DeclaradorContext) ctx.children.get(0)).ID() != null) {
 
-            nombre = ((DeclaradorContext) ctx.children.get(0)).ID().toString();
-            id = new Variable(currentSpecificador, nombre);
+            nombreId = ((DeclaradorContext) ctx.children.get(0)).ID().toString();
+            id = new Variable(specificadorActual, nombreId);
             if (ctx.children.size() > 1)
                 id.setInicializado(true);
         } else {
-            nombre = ((DeclaradorContext) ctx.getChild(0).getChild(0)).ID().toString();
-            Funcion f = new Funcion(currentSpecificador, nombre);
+            nombreId = ((DeclaradorContext) ctx.getChild(0).getChild(0)).ID().toString();
+            Funcion f = new Funcion(specificadorActual, nombreId);
 
             if (ctx.children.size() > 1) {
-                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ": error: la función \'" + nombre
+                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ": error: la función \'" + nombreId
                         + "\' es inicializada como una variable" + Colors.ANSI_RESET);
                 errors = true;
 
             }
 
-            /* Calcola parametri */
+            /* Calcolo parametros */
             List<ParseTree> listaParametrosChilds = ((DeclaradorContext) ctx.getChild(0)).lista_parametros().children;
 
             TipoDato tipoParam = null;
@@ -182,24 +182,24 @@ public class Escucha extends compiladorBaseListener {
             }
         }
 
-        if (ts.buscarSimboloLocal(nombre) != null) {
+        if (ts.buscarSimboloLocal(nombreId) != null) {
             if (!definicion) {
                 System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: identificador " + "\'" + id.getNombre()
                         + "\' ya usado en esto contexto!" + Colors.ANSI_RESET);
                 errors = true;
             } else {
                 definicion = false;
-                Funcion f = (Funcion) ts.buscarSimboloLocal(nombre);
+                Funcion f = (Funcion) ts.buscarSimboloLocal(nombreId);
                 if (!f.getInicializado()) {
                     if (f.getArgs().equals(((Funcion) id).getArgs()))
                         f.setInicializado(true);
                     else {
                         System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: tipos conflictivos para \'"
-                                + nombre + "\'" + Colors.ANSI_RESET);
+                                + nombreId + "\'" + Colors.ANSI_RESET);
                         errors = true;
                     }
                 } else {
-                    System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: redefinición de \'" + nombre + "\'"
+                    System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: redefinición de \'" + nombreId + "\'"
                             + Colors.ANSI_RESET);
                     errors = true;
                 }

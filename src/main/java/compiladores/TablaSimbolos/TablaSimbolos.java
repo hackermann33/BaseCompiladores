@@ -117,15 +117,18 @@ public class TablaSimbolos {
         str+=(" CTX |  KEY  |            VALUE            |  INIT  |  USADA  |\n");
         str+=("+----+-------+-----------------------------+--------+---------+\n");
         
-        for(int i = 0; i < tabla.size(); i++){
-            for(String k : tabla.get(i).keySet()){
-                Id val = tabla.get(i).get(k);
-                str += String.format(leftAlignFormat, i, k, val, val.getInicializado(), val.getUsado());
+        for(int ctx = 0; ctx < tabla.size(); ctx++){
+            for(String k : tabla.get(ctx).keySet()){
+                Id val = tabla.get(ctx).get(k);
+                str += String.format(leftAlignFormat, ctx, k, val, val.getInicializado(), val.getUsado());
             }
-            if(!tabla.get(i).keySet().isEmpty())
+            if(!tabla.get(ctx).keySet().isEmpty()){
                 str+=("+----+-------+-----------------------------+--------+---------+\n");
-
-            //str +="\n";
+            }
+            else{
+                str += String.format(leftAlignFormat, ctx, " ", " ", " ", " ");
+                str+=("+----+-------+-----------------------------+--------+---------+\n");
+            }
         }
         return str;// return "TablaSimbolos: tabla=" + tabla;
     }
