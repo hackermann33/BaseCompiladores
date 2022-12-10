@@ -9,4 +9,4 @@ compilador*.py
 *.class
 *.jar
 *.tokens
-src/main/java/compiladores/compiladorListener.java
+compilador*.java
