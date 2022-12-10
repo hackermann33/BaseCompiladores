@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class App {
     public static void main(String[] args) throws Exception {
         // create a CharStream that reads from file
-        CharStream input = CharStreams.fromFileName("input/declaraciones.c");
+        CharStream input = CharStreams.fromFileName("input/codigo_tres.c");
 
         // create a lexer that feeds off of input CharStream
         compiladorLexer lexer = new compiladorLexer(input);
@@ -41,11 +41,11 @@ public class App {
             System.out.println("Algun error... termino");
             return ;
         }
-        System.out.println("Ningun error, Continuo..");
+        System.out.println("Ningun error, continuo..");
 
         // Conectamos el visitor
         Caminante visitor = new Caminante();
-        //visitor.visit(tree);
+        visitor.visit(tree);
         //System.out.println(visitor);
         // System.out.println(visitor.getErrorNodes());
         // Imprime el arbol obtenido

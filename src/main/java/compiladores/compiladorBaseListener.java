@@ -126,6 +126,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOperador_multiplicacion(compiladorParser.Operador_multiplicacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperador_multiplicacion(compiladorParser.Operador_multiplicacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -133,6 +145,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOperador_adicion(compiladorParser.Operador_adicionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperador_adicion(compiladorParser.Operador_adicionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -150,6 +174,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOperador_relacional(compiladorParser.Operador_relacionalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperador_relacional(compiladorParser.Operador_relacionalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -157,6 +193,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOperador_igualdad(compiladorParser.Operador_igualdadContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperador_igualdad(compiladorParser.Operador_igualdadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -241,6 +289,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLista_parametros_expresiones(compiladorParser.Lista_parametros_expresionesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOperador_prefijo(compiladorParser.Operador_prefijoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperador_prefijo(compiladorParser.Operador_prefijoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -366,13 +426,25 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSeleccion(compiladorParser.SeleccionContext ctx) { }
+	@Override public void enterSeleccion_if(compiladorParser.Seleccion_ifContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSeleccion(compiladorParser.SeleccionContext ctx) { }
+	@Override public void exitSeleccion_if(compiladorParser.Seleccion_ifContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSeleccion_if_else(compiladorParser.Seleccion_if_elseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSeleccion_if_else(compiladorParser.Seleccion_if_elseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

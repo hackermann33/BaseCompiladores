@@ -6,7 +6,7 @@ int main()
     int a;
     {
     int a, b = 4;
-    int c = f2(1, 2 * 3 * 4, a);
+    c = f2(1, 2 * 3 * 4);
     return a;
     }
   }

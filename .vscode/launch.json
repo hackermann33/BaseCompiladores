@@ -11,7 +11,7 @@
             // Archivo con la gramatica
             "grammar": "src/main/java/compiladores/compilador.g4",
             // Archivo a parsear
-            "input": "input/declaraciones.c",
+            "input": "input/codigo_tres.c",
             // Simbolo inicial
             "startRule": "programa", //"opar" 
             // Muestra Arbol Sintactico

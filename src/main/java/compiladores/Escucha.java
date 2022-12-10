@@ -107,7 +107,12 @@ public class Escucha extends compiladorBaseListener {
                 System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Uso del identificador no declarado \'"
                         + nombreActualVariable + "\' " + Colors.ANSI_RESET);
                 errors = true;
-            } else {
+            } else if((idCorrente = ts.buscarSimbolo(nombreActualVariable)) instanceof Funcion){
+                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Función \'"
+                        + nombreActualVariable + "\' " + " no es asignable" +Colors.ANSI_RESET);
+                errors = true;
+            }
+            else {
                 idCorrente.setInicializado(true);
             }
         }

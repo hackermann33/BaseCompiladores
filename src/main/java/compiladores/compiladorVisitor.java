@@ -67,11 +67,23 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpresion(compiladorParser.ExpresionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link compiladorParser#operador_multiplicacion}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperador_multiplicacion(compiladorParser.Operador_multiplicacionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion_multiplicativa}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#operador_adicion}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperador_adicion(compiladorParser.Operador_adicionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion_aditiva}.
 	 * @param ctx the parse tree
@@ -79,11 +91,23 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpresion_aditiva(compiladorParser.Expresion_aditivaContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link compiladorParser#operador_relacional}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperador_relacional(compiladorParser.Operador_relacionalContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion_relacional}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#operador_igualdad}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperador_igualdad(compiladorParser.Operador_igualdadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion_igualdad}.
 	 * @param ctx the parse tree
@@ -126,6 +150,12 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLista_parametros_expresiones(compiladorParser.Lista_parametros_expresionesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#operador_prefijo}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperador_prefijo(compiladorParser.Operador_prefijoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion_postfija}.
 	 * @param ctx the parse tree
@@ -187,11 +217,19 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression_statement(compiladorParser.Expression_statementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link compiladorParser#seleccion}.
+	 * Visit a parse tree produced by the {@code seleccion_if}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSeleccion(compiladorParser.SeleccionContext ctx);
+	T visitSeleccion_if(compiladorParser.Seleccion_ifContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code seleccion_if_else}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeleccion_if_else(compiladorParser.Seleccion_if_elseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#iteracion}.
 	 * @param ctx the parse tree

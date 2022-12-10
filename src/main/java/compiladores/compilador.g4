@@ -51,9 +51,9 @@ WHILE:	'while';
 DO:		'do';
 FOR:	'for';
 
-CONTINUE: 'continue';
-BREAK: 'break';
-RETURN: 'return';
+CONTINUE:	'continue';
+BREAK:		'break';
+RETURN:		'return';
 
 ID: (LETRA | '_') (LETRA | DIGITO | '_')*;
 
@@ -78,13 +78,9 @@ definicion_funcion: specificador_tipo init_declarador bloque;
 
 bloque: LLA LLC | LLA instrucciones LLC;
 
-instrucciones:instruccion instrucciones
-              |
-              ;
-
+instrucciones: instruccion instrucciones |;
 
 instruccion: declaracion | statement | PYC;
-
 
 /* EXPRESIONES */
 expresiones: expresion PYC;
@@ -93,28 +89,29 @@ expresion
 	: expresion_asignacion
 	| expresion COM expresion_asignacion;
 
+operador_multiplicacion: MULT | DIVI | MOD;
+
 expresion_multiplicativa
 	: expresion_postfija
-	| expresion_multiplicativa MULT expresion_postfija
-	| expresion_multiplicativa DIVI expresion_postfija
-	| expresion_multiplicativa MOD expresion_multiplicativa;
+	| expresion_multiplicativa operador_multiplicacion expresion_postfija;
+
+operador_adicion: SUMA | DIFF;
 
 expresion_aditiva
 	: expresion_multiplicativa
-	| expresion_aditiva SUMA expresion_multiplicativa
-	| expresion_aditiva DIFF expresion_multiplicativa;
+	| expresion_aditiva operador_adicion expresion_multiplicativa;
+
+operador_relacional: LE_OP | GE_OP | LT_OP | GT_OP;
 
 expresion_relacional
 	: expresion_aditiva
-	| expresion_relacional LE_OP expresion_aditiva
-	| expresion_relacional GE_OP expresion_aditiva
-	| expresion_relacional LT_OP expresion_aditiva
-	| expresion_relacional GT_OP expresion_aditiva;
+	| expresion_relacional operador_relacional expresion_aditiva;
+
+operador_igualdad: EQ_OP | NE_OP;
 
 expresion_igualdad
 	: expresion_relacional
-	| expresion_igualdad EQ_OP expresion_relacional
-	| expresion_igualdad NE_OP expresion_relacional;
+	| expresion_igualdad operador_igualdad expresion_relacional;
 
 expresion_logica_and
 	: expresion_igualdad
@@ -141,15 +138,17 @@ expresion_primaria: ID | PA expresion PC | NUMERO_INT;
 lista_parametros_expresiones
 	: expresion_asignacion
 	| lista_parametros_expresiones COM expresion_asignacion
-	|
-	;
+	|;
+
+operador_prefijo: 
+	INC_OP | DEC_OP | DIFF | SUMA;
 
 expresion_postfija
 	: expresion_primaria
+	| operador_prefijo expresion_postfija
 	| expresion_postfija INC_OP
 	| expresion_postfija DEC_OP
 	| expresion_postfija PA lista_parametros_expresiones PC;
-
 
 /* INSTRUCCIONES  */
 
@@ -170,7 +169,7 @@ init_declarador
 specificador_tipo: INT | VOID | DOUBLE;
 
 declarador
-	: ID								
+	: ID
 	| declarador PA lista_parametros PC; // | declarador PA PC
 
 lista_parametros
@@ -189,14 +188,14 @@ statement
 	| iteracion
 	| expression_statement
 	| bloque
-  | salto
-  ;
+	| salto;
 
 expression_statement: PYC | expresion PYC;
 
 seleccion
-	: IF PA expresion PC statement
-	| IF PA expresion PC statement ELSE statement;
+	: IF PA expresion PC statement #seleccion_if
+	| IF PA expresion PC statement ELSE statement #seleccion_if_else
+	;
 
 iteracion
 	: WHILE PA expresion PC statement
@@ -206,13 +205,11 @@ iteracion
 	| FOR PA declaracion expression_statement PC statement
 	| FOR PA declaracion expression_statement expresion PC statement;
 
-
 salto
 	: CONTINUE PYC
 	| BREAK PYC
 	| RETURN PYC
-	| RETURN expresion PYC
-	;
+	| RETURN expresion PYC;
 
 /* ****************************************************************************** ARITMETICA ****************************************************************************** */
 

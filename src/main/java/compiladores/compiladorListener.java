@@ -100,6 +100,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitExpresion(compiladorParser.ExpresionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link compiladorParser#operador_multiplicacion}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperador_multiplicacion(compiladorParser.Operador_multiplicacionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#operador_multiplicacion}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperador_multiplicacion(compiladorParser.Operador_multiplicacionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion_multiplicativa}.
 	 * @param ctx the parse tree
 	 */
@@ -109,6 +119,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#operador_adicion}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperador_adicion(compiladorParser.Operador_adicionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#operador_adicion}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperador_adicion(compiladorParser.Operador_adicionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion_aditiva}.
 	 * @param ctx the parse tree
@@ -120,6 +140,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitExpresion_aditiva(compiladorParser.Expresion_aditivaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link compiladorParser#operador_relacional}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperador_relacional(compiladorParser.Operador_relacionalContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#operador_relacional}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperador_relacional(compiladorParser.Operador_relacionalContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion_relacional}.
 	 * @param ctx the parse tree
 	 */
@@ -129,6 +159,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#operador_igualdad}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperador_igualdad(compiladorParser.Operador_igualdadContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#operador_igualdad}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperador_igualdad(compiladorParser.Operador_igualdadContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion_igualdad}.
 	 * @param ctx the parse tree
@@ -199,6 +239,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLista_parametros_expresiones(compiladorParser.Lista_parametros_expresionesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#operador_prefijo}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperador_prefijo(compiladorParser.Operador_prefijoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#operador_prefijo}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperador_prefijo(compiladorParser.Operador_prefijoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion_postfija}.
 	 * @param ctx the parse tree
@@ -300,15 +350,29 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitExpression_statement(compiladorParser.Expression_statementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link compiladorParser#seleccion}.
+	 * Enter a parse tree produced by the {@code seleccion_if}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
 	 * @param ctx the parse tree
 	 */
-	void enterSeleccion(compiladorParser.SeleccionContext ctx);
+	void enterSeleccion_if(compiladorParser.Seleccion_ifContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link compiladorParser#seleccion}.
+	 * Exit a parse tree produced by the {@code seleccion_if}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
 	 * @param ctx the parse tree
 	 */
-	void exitSeleccion(compiladorParser.SeleccionContext ctx);
+	void exitSeleccion_if(compiladorParser.Seleccion_ifContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code seleccion_if_else}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
+	 * @param ctx the parse tree
+	 */
+	void enterSeleccion_if_else(compiladorParser.Seleccion_if_elseContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code seleccion_if_else}
+	 * labeled alternative in {@link compiladorParser#seleccion}.
+	 * @param ctx the parse tree
+	 */
+	void exitSeleccion_if_else(compiladorParser.Seleccion_if_elseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#iteracion}.
 	 * @param ctx the parse tree
