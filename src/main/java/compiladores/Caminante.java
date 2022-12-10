@@ -1,7 +1,6 @@
 package compiladores;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import compiladores.compiladorParser.BloqueContext;
 import compiladores.compiladorParser.Expresion_aditivaContext;
@@ -13,6 +12,7 @@ import compiladores.compiladorParser.Expresion_multiplicativaContext;
 import compiladores.compiladorParser.Expresion_postfijaContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
+import compiladores.compiladorParser.IteracionContext;
 import compiladores.compiladorParser.Operador_prefijoContext;
 import compiladores.compiladorParser.ProgramaContext;
 import compiladores.compiladorParser.Seleccion_ifContext;
@@ -50,13 +50,29 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitExpresion_asignacion(Expresion_asignacionContext ctx) {
         if (ctx.ID() != null) {
-            System.out.println("//operacion "+ctx.getText());
+            System.out.println("//operacion " + ctx.getText());
             String id = ctx.ID().getText();
             String op = ctx.operador_asignacion().getChild(0).getText();
             String res;
-            res = (String) super.visit(ctx.expresion_asignacion());
-            System.out.printf("%s %s %s\n", id, op, res);
-            return "t" + n++;
+
+            if (op.equals("=")) {
+                if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 4) {
+                    res = (String) super.visit(ctx.expresion_asignacion());
+                    System.out.printf("%s %s %s\n", id, op, res);
+                } else
+                    System.out.println(ctx.getText());
+            }
+            else {
+                op = op.substring(0,1);
+                if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 3) {
+                    res = (String) super.visit(ctx.expresion_asignacion());
+                    System.out.printf("%s %s %s %s %s\n", id, "=", id, op, res);
+                } else{
+                    System.out.printf("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
+                    System.out.println(ctx.getText());
+                }
+            }
+            return "t" + n;
         }
         return super.visit(ctx.expresion_logica_or());
     }
@@ -179,27 +195,24 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitExpresion_postfija(Expresion_postfijaContext ctx) {
         /* Solo caso prefissa */
-        if (ctx.children.size() == 2 && (ctx.children.get(0) instanceof Operador_prefijoContext) ) 
-         {
+        if (ctx.children.size() == 2 && (ctx.children.get(0) instanceof Operador_prefijoContext)) {
             // System.out.println((ctx.children.get(0).getClass().getSimpleName()));
             // if(ctx.children.size() == 2){
             String term1 = "";
             term1 = (String) super.visit(ctx.expresion_postfija());
             String op = (ctx.operador_prefijo().getText());
-            if(op.equals("++") || op.equals("--")){
-                op = op.substring(0,1);
+            if (op.equals("++") || op.equals("--")) {
+                op = op.substring(0, 1);
                 System.out.printf("t%d = %s %s %s\n", n, term1, op, "1");
-            }
-            else if(op.equals("-")){
+            } else if (op.equals("-")) {
                 System.out.printf("t%d = %s %s %s\n", n, "0", op, term1);
-            }
-            else {
+            } else {
                 System.out.printf("t%d = %s \n", n, term1);
             }
             return ("t" + n++);
         } else if (ctx.children.size() == 3) {
             System.out.println("69: Not implemented");
-            return ("t" + n++);
+            return ("t" + n);
         } else
             return (String) super.visit(ctx.expresion_primaria());
     }
@@ -216,29 +229,57 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitSeleccion_if(Seleccion_ifContext ctx) {
-        System.out.println("//operacion "+ctx.getText());
+        System.out.println("//operacion " + ctx.getText());
         String cond = (String) super.visit(ctx.expresion());
+        int oldL = l;
         System.out.printf("ifnjmp %s,l%d\n", cond, l++);
         String caso = (String) super.visit(ctx.statement());
-        System.out.println("label l"+l);        
-        return "l"+l++;
+        System.out.println("label l" + oldL);
+        return "l" + l;
     }
 
     @Override
     public Object visitSeleccion_if_else(Seleccion_if_elseContext ctx) {
         String stat = ctx.children.stream().map(pt -> pt.getText())
-        .reduce("", (part, element) -> part + " "+ element);;
-        System.out.println("//operacion \'"+stat + "\'");
-        String cond = (String) super.visit(ctx.expresion()); 
+                .reduce("", (part, element) -> part + " " + element);
+        ;
+        System.out.println("//operacion \'" + stat + "\'");
+        int oldL = l;
+        String cond = (String) super.visit(ctx.expresion());
         System.out.printf("ifnjmp %s,l%d\n", cond, l++);
         super.visit(ctx.statement(0));
         System.out.printf("jmp l%d\n", l);
-        System.out.println("label l"+(l-1)); 
-        System.out.println("label l"+l);
-        return "l"+l++;
+        System.out.println("label l" + oldL);
+        super.visit(ctx.statement(1));
+        System.out.println("label l" + (oldL + 1));
+        return "l" + l;
     }
 
-    
-    
-    
+    @Override
+    public Object visitIteracion(IteracionContext ctx) {
+        System.out.println("//iteracion " + ctx.getText());
+        if (ctx.getChild(0).getText().equals("while")) {
+            String cond = (String) super.visit(ctx.expresion());
+            int oldL = l;
+            System.out.println("label l" + l++);
+            System.out.println("ifnjmp " + cond + ",l" + l);
+            super.visit(ctx.statement());
+            System.out.println("jmp l" + oldL);
+            System.out.println("label l" + (oldL + 1));
+            return "l" + l;
+        }
+
+        else if (ctx.getChild(0).getText().equals("do")) {
+            int oldL = l;
+            System.out.println("label l" + l++);
+            super.visit(ctx.statement());
+            String cond = (String) super.visit(ctx.expresion());
+            System.out.println("ifjmp " + cond + ",l" + oldL);
+            System.out.println("jmp l" + oldL);
+            return "l" + l;
+        }
+
+        return super.visitIteracion(ctx);
+    }
+
 }

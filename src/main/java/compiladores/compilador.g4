@@ -164,7 +164,7 @@ init_lista_declarador
 
 init_declarador
 	: declarador
-	| declarador IGU expresion_asignacion /* TODO: NMERO_INT ==> expression */;
+	| declarador IGU expresion_asignacion ;
 
 specificador_tipo: INT | VOID | DOUBLE;
 
@@ -198,7 +198,7 @@ seleccion
 	;
 
 iteracion
-	: WHILE PA expresion PC statement
+	: WHILE PA expresion PC statement 
 	| DO statement WHILE PA expresion PC PYC
 	| FOR PA expression_statement expression_statement PC statement
 	| FOR PA expression_statement expression_statement expresion PC statement
