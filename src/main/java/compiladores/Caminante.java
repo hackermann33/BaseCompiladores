@@ -1,5 +1,6 @@
 package compiladores;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import compiladores.compiladorParser.BloqueContext;
@@ -12,7 +13,9 @@ import compiladores.compiladorParser.Expresion_multiplicativaContext;
 import compiladores.compiladorParser.Expresion_postfijaContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
+import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.IteracionContext;
+import compiladores.compiladorParser.Lista_parametros_expresionesContext;
 import compiladores.compiladorParser.Operador_prefijoContext;
 import compiladores.compiladorParser.ProgramaContext;
 import compiladores.compiladorParser.Seleccion_ifContext;
@@ -21,6 +24,7 @@ import compiladores.compiladorParser.Seleccion_if_elseContext;
 public class Caminante extends compiladorBaseVisitor<Object> {
     int n = 0;
     int l = 0;
+    int r = 0;
     String id;
     String op;
 
@@ -56,7 +60,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             String res;
 
             if (op.equals("=")) {
-                if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 4) {
+                if (ctx.getSourceInterval().b - ctx.getSourceInterval().a > 4) {
                     res = (String) super.visit(ctx.expresion_asignacion());
                     System.out.printf("%s %s %s\n", id, op, res);
                 } else
@@ -210,9 +214,14 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                 System.out.printf("t%d = %s \n", n, term1);
             }
             return ("t" + n++);
-        } else if (ctx.children.size() == 3) {
-            System.out.println("69: Not implemented");
-            return ("t" + n);
+        } else if (ctx.children.size() == 4) {
+            System.out.println("//funcion call: " + ctx.getText());
+            System.out.println(super.visit(ctx.lista_parametros_expresiones()));
+            System.out.println("push l"+l);
+            System.out.println("label l"+ l++);
+            System.out.println("jump "+ctx.ID());
+            System.out.println("pop res"+r);
+            return ("res" + r++);
         } else
             return (String) super.visit(ctx.expresion_primaria());
     }
@@ -266,9 +275,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             super.visit(ctx.statement());
             System.out.println("jmp l" + oldL);
             System.out.println("label l" + (oldL + 1));
-            return "l" + l;
+            return "l" + l++;
         }
-
         else if (ctx.getChild(0).getText().equals("do")) {
             int oldL = l;
             System.out.println("label l" + l++);
@@ -278,8 +286,59 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("jmp l" + oldL);
             return "l" + l;
         }
+        else if(ctx.getChild(0).getText().equals("for")) {
+            ParseTree initIstr, condIstr;
+
+            initIstr = ctx.declaracion() != null ? ctx.declaracion() : ctx.expression_statement(0);
+            condIstr = ctx.declaracion() != null ? ctx.expression_statement(0).expresion() : ctx.expression_statement(1).expresion();
+
+            super.visit(initIstr);
+            String cond = (String) super.visit(condIstr);
+            int oldL = l;
+            System.out.println("label l" + l++);
+            System.out.println("ifnjmp " + cond + ",l" + l);
+            if(ctx.expresion() != null) super.visit(ctx.expresion());
+            super.visit(ctx.statement());
+            System.out.println("jmp l" + oldL);
+            System.out.println("label l" + (oldL + 1));
+            return "l" + l++;
+        }
 
         return super.visitIteracion(ctx);
+    }
+
+    @Override
+    public Object visitInit_declarador(Init_declaradorContext ctx) {
+        if (ctx.children.size() > 1) {
+            System.out.println("//operacion " + ctx.getText());
+            String id = ctx.declarador().ID().getText();
+            String res;
+            
+            if (ctx.getSourceInterval().b - ctx.getSourceInterval().a > 4) {
+                res = (String) super.visit(ctx.expresion_asignacion());
+                System.out.printf("%s %s %s\n", id, "=", res);
+            } else
+                System.out.println(ctx.getText());
+            
+            return "t" + n;
+        }
+        return super.visitInit_declarador(ctx);
+    }
+
+    @Override
+    public Object visitLista_parametros_expresiones(Lista_parametros_expresionesContext ctx) {
+        if(ctx.children.size() > 1){
+            super.visit(ctx.lista_parametros_expresiones());
+            String arg2 = (String)super.visit(ctx.expresion_asignacion());
+            System.out.println("push " + arg2);
+            return arg2;
+        }
+        else{
+            String arg = (String) super.visit(ctx.expresion_asignacion());
+            System.out.println("push " + arg);
+            return arg;
+
+        }
     }
 
 }

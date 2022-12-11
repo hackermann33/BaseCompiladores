@@ -9,12 +9,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import compiladores.compiladorParser.BloqueContext;
+import compiladores.compiladorParser.DeclaracionContext;
 import compiladores.compiladorParser.Declaracion_parametroContext;
 import compiladores.compiladorParser.DeclaradorContext;
 import compiladores.compiladorParser.Definicion_funcionContext;
 import compiladores.compiladorParser.Expresion_asignacionContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Init_declaradorContext;
+import compiladores.compiladorParser.IteracionContext;
 import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.ProgramaContext;
 import compiladores.compiladorParser.Specificador_tipoContext;
@@ -145,7 +147,7 @@ public class Escucha extends compiladorBaseListener {
         String nombreId = "";
         Id id;
         if (((DeclaradorContext) ctx.children.get(0)).ID() != null) {
-
+            definicion = false;
             nombreId = ((DeclaradorContext) ctx.children.get(0)).ID().toString();
             id = new Variable(specificadorActual, nombreId);
             if (ctx.children.size() > 1)
@@ -228,4 +230,8 @@ public class Escucha extends compiladorBaseListener {
         definicion = true;
         super.enterDefinicion_funcion(ctx);
     }
+
+    
+
+    
 }

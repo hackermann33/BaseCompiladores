@@ -57,7 +57,7 @@ RETURN:		'return';
 
 ID: (LETRA | '_') (LETRA | DIGITO | '_')*;
 
-NUMERO_INT: ('-')* (NUMERO);
+NUMERO_INT: (NUMERO);
 
 WS:				[ \t\n\r] -> skip;
 COMMENT:		'/*' .*? '*/' -> skip;
@@ -148,7 +148,7 @@ expresion_postfija
 	| operador_prefijo expresion_postfija
 	| expresion_postfija INC_OP
 	| expresion_postfija DEC_OP
-	| expresion_postfija PA lista_parametros_expresiones PC;
+	| ID PA lista_parametros_expresiones PC;
 
 /* INSTRUCCIONES  */
 
