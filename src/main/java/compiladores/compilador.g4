@@ -143,11 +143,13 @@ lista_parametros_expresiones
 operador_prefijo: 
 	INC_OP | DEC_OP | DIFF | SUMA;
 
+operador_postfijo:
+	INC_OP | DEC_OP;
+
 expresion_postfija
 	: expresion_primaria
-	| operador_prefijo expresion_postfija
-	| expresion_postfija INC_OP
-	| expresion_postfija DEC_OP
+	| operador_prefijo ID
+	| ID operador_postfijo
 	| ID PA lista_parametros_expresiones PC;
 
 /* INSTRUCCIONES  */

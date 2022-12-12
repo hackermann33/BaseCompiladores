@@ -1,9 +1,14 @@
 package compiladores;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import compiladores.compiladorParser.BloqueContext;
+import compiladores.compiladorParser.Definicion_funcionContext;
 import compiladores.compiladorParser.Expresion_aditivaContext;
 import compiladores.compiladorParser.Expresion_asignacionContext;
 import compiladores.compiladorParser.Expresion_igualdadContext;
@@ -15,9 +20,11 @@ import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
 import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.IteracionContext;
+import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.Lista_parametros_expresionesContext;
 import compiladores.compiladorParser.Operador_prefijoContext;
 import compiladores.compiladorParser.ProgramaContext;
+import compiladores.compiladorParser.SaltoContext;
 import compiladores.compiladorParser.Seleccion_ifContext;
 import compiladores.compiladorParser.Seleccion_if_elseContext;
 
@@ -27,6 +34,10 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     int r = 0;
     String id;
     String op;
+    private boolean definicion;
+    private int p;
+    private Queue<String> funcionesPostfijas = new LinkedList<String>();
+    private boolean ret;
 
     @Override
     public Object visitBloque(BloqueContext ctx) {
@@ -46,39 +57,39 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitTerminal(TerminalNode node) {
-        // System.out.println("\tHoja contiene |" + node.getText() + "|");
-        return super.visitTerminal(node);
-    }
-
-    @Override
     public Object visitExpresion_asignacion(Expresion_asignacionContext ctx) {
+        String res;
         if (ctx.ID() != null) {
             System.out.println("//operacion " + ctx.getText());
             String id = ctx.ID().getText();
             String op = ctx.operador_asignacion().getChild(0).getText();
-            String res;
-
+            
             if (op.equals("=")) {
-                if (ctx.getSourceInterval().b - ctx.getSourceInterval().a > 4) {
+                int numTokens = ctx.getSourceInterval().b - ctx.getSourceInterval().a + 1;
+                if (numTokens != 3 && numTokens != 5) {
                     res = (String) super.visit(ctx.expresion_asignacion());
                     System.out.printf("%s %s %s\n", id, op, res);
                 } else
                     System.out.println(ctx.getText());
-            }
-            else {
-                op = op.substring(0,1);
+            } else {
+                op = op.substring(0, 1);
                 if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 3) {
                     res = (String) super.visit(ctx.expresion_asignacion());
                     System.out.printf("%s %s %s %s %s\n", id, "=", id, op, res);
-                } else{
+                } else {
                     System.out.printf("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
                     System.out.println(ctx.getText());
                 }
             }
+            if(funcionesPostfijas.size() > 0){
+                funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
+                funcionesPostfijas.clear();
+            }
             return "t" + n;
         }
-        return super.visit(ctx.expresion_logica_or());
+
+        res = (String) super.visit(ctx.expresion_logica_or());
+        return res;
     }
 
     @Override
@@ -199,28 +210,38 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitExpresion_postfija(Expresion_postfijaContext ctx) {
         /* Solo caso prefissa */
-        if (ctx.children.size() == 2 && (ctx.children.get(0) instanceof Operador_prefijoContext)) {
-            // System.out.println((ctx.children.get(0).getClass().getSimpleName()));
-            // if(ctx.children.size() == 2){
+        if (ctx.children.size() == 2) {
             String term1 = "";
-            term1 = (String) super.visit(ctx.expresion_postfija());
-            String op = (ctx.operador_prefijo().getText());
-            if (op.equals("++") || op.equals("--")) {
-                op = op.substring(0, 1);
-                System.out.printf("t%d = %s %s %s\n", n, term1, op, "1");
-            } else if (op.equals("-")) {
-                System.out.printf("t%d = %s %s %s\n", n, "0", op, term1);
-            } else {
-                System.out.printf("t%d = %s \n", n, term1);
+            term1 = ctx.ID().getText();
+            String op = "";
+            if (ctx.children.get(0) instanceof Operador_prefijoContext) {
+                op = (ctx.operador_prefijo().getText());
+                if (op.equals("++") || op.equals("--")) {
+                    op = op.substring(0, 1);
+                    System.out.printf("t%d = %s %s %s\n", n, term1, op, "1");
+                } else if (op.equals("-")) {
+                    System.out.printf("t%d = %s %s %s\n", n, "0", op, term1);
+                } else {
+                    System.out.printf("t%d = %s\n", n, term1);
+                }
+                return ("t" + n++);
             }
-            return ("t" + n++);
+            else {
+                op = (ctx.operador_postfijo().getText());
+                if (op.equals("++") || op.equals("--")) {
+                    op = op.substring(0, 1);
+                    funcionesPostfijas.add(String.format("%s = %s %s %s\n", term1, term1, op, "1"));
+                }
+                return (term1);
+            }
+            
         } else if (ctx.children.size() == 4) {
             System.out.println("//funcion call: " + ctx.getText());
             System.out.println(super.visit(ctx.lista_parametros_expresiones()));
-            System.out.println("push l"+l);
-            System.out.println("label l"+ l++);
-            System.out.println("jump "+ctx.ID());
-            System.out.println("pop res"+r);
+            System.out.println("push l" + l);
+            System.out.println("jump " + ctx.ID());
+            System.out.println("label l" + l++);
+            System.out.println("pop res" + r);
             return ("res" + r++);
         } else
             return (String) super.visit(ctx.expresion_primaria());
@@ -276,8 +297,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("jmp l" + oldL);
             System.out.println("label l" + (oldL + 1));
             return "l" + l++;
-        }
-        else if (ctx.getChild(0).getText().equals("do")) {
+        } else if (ctx.getChild(0).getText().equals("do")) {
             int oldL = l;
             System.out.println("label l" + l++);
             super.visit(ctx.statement());
@@ -285,19 +305,20 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("ifjmp " + cond + ",l" + oldL);
             System.out.println("jmp l" + oldL);
             return "l" + l;
-        }
-        else if(ctx.getChild(0).getText().equals("for")) {
+        } else if (ctx.getChild(0).getText().equals("for")) {
             ParseTree initIstr, condIstr;
 
             initIstr = ctx.declaracion() != null ? ctx.declaracion() : ctx.expression_statement(0);
-            condIstr = ctx.declaracion() != null ? ctx.expression_statement(0).expresion() : ctx.expression_statement(1).expresion();
+            condIstr = ctx.declaracion() != null ? ctx.expression_statement(0).expresion()
+                    : ctx.expression_statement(1).expresion();
 
             super.visit(initIstr);
             String cond = (String) super.visit(condIstr);
             int oldL = l;
             System.out.println("label l" + l++);
             System.out.println("ifnjmp " + cond + ",l" + l);
-            if(ctx.expresion() != null) super.visit(ctx.expresion());
+            if (ctx.expresion() != null)
+                super.visit(ctx.expresion());
             super.visit(ctx.statement());
             System.out.println("jmp l" + oldL);
             System.out.println("label l" + (oldL + 1));
@@ -313,13 +334,18 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("//operacion " + ctx.getText());
             String id = ctx.declarador().ID().getText();
             String res;
-            
-            if (ctx.getSourceInterval().b - ctx.getSourceInterval().a > 4) {
+
+            int numTokens = ctx.getSourceInterval().b - ctx.getSourceInterval().a + 1;
+            if (numTokens != 3 && numTokens != 5) {
                 res = (String) super.visit(ctx.expresion_asignacion());
                 System.out.printf("%s %s %s\n", id, "=", res);
+                if(funcionesPostfijas.size() > 0){
+                    funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
+                    funcionesPostfijas.clear();
+                }
             } else
                 System.out.println(ctx.getText());
-            
+
             return "t" + n;
         }
         return super.visitInit_declarador(ctx);
@@ -327,18 +353,53 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitLista_parametros_expresiones(Lista_parametros_expresionesContext ctx) {
-        if(ctx.children.size() > 1){
+        if (ctx.children.size() > 1) {
             super.visit(ctx.lista_parametros_expresiones());
-            String arg2 = (String)super.visit(ctx.expresion_asignacion());
+            String arg2 = (String) super.visit(ctx.expresion_asignacion());
             System.out.println("push " + arg2);
             return arg2;
-        }
-        else{
+        } else {
             String arg = (String) super.visit(ctx.expresion_asignacion());
             System.out.println("push " + arg);
             return arg;
 
         }
+    }
+
+    @Override
+    public Object visitDefinicion_funcion(Definicion_funcionContext ctx) {
+        definicion = true;
+        System.out.println("//definicion funcion: " + ctx.getText());
+        p = 0;
+        super.visit(ctx.init_declarador());
+        System.out.println("pop ret");
+        String res = (String) super.visit(ctx.bloque());
+        if(ret){
+            System.out.println("push " + res);
+            ret = false;
+        }
+        System.out.println("jump ret");
+        return res;
+    }
+
+    @Override
+    protected Object aggregateResult(Object aggregate, Object nextResult) {
+        return aggregate != null ? aggregate : nextResult;
+    }
+
+    @Override
+    public Object visitLista_parametros(Lista_parametrosContext ctx) {
+        if (ctx.declaracion_parametro() != null)
+            System.out.printf("pop %s\n", ctx.declaracion_parametro().declarador().getText());
+        return super.visitLista_parametros(ctx);
+    }
+
+    @Override
+    public Object visitSalto(SaltoContext ctx) {
+        if(ctx.RETURN() != null)
+            ret = true;
+
+        return super.visitSalto(ctx);
     }
 
 }

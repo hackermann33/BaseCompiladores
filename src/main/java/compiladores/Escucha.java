@@ -3,6 +3,8 @@ package compiladores;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -34,7 +36,7 @@ public class Escucha extends compiladorBaseListener {
     private TipoDato specificadorActual = null;
     private boolean definicion = false;
     public boolean errors = false;
-
+    List<Variable> params = new LinkedList<>();
 
     @Override
     public void enterPrograma(ProgramaContext ctx) {
@@ -46,14 +48,14 @@ public class Escucha extends compiladorBaseListener {
     public void exitPrograma(ProgramaContext ctx) {
         ts.imprimeWarnings();
         tablaContextosStr += "saliendo del programa." + "\n";
-        
+
         tablaContextosStr += ts;
         try {
             FileWriter escritor = new FileWriter("tabla_contexto.txt");
             File f = new File("tabla_contexto.txt");
             escritor.write(tablaContextosStr);
             System.out.println(
-                    "> archivo con tablas de símbolos guardado correctamente en \'"+ f.getAbsolutePath() + "\'");
+                    "> archivo con tablas de símbolos guardado correctamente en \'" + f.getAbsolutePath() + "\'");
             escritor.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -64,11 +66,17 @@ public class Escucha extends compiladorBaseListener {
 
     @Override
     public void enterBloque(BloqueContext ctx) {
+
         contexto++;
         ts.addContexto();
         tablaContextosStr += "[" + (contexto - 1) + " -> " + contexto + "] ";
         tablaContextosStr += "entrando en el nuevo contexto " + contexto + "\n";
         tablaContextosStr += ts + "\n";
+        if (definicion) {
+            params.forEach((p) -> ts.addSimbolo(p));
+            params.clear();
+            definicion = false;
+        }
     }
 
     @Override
@@ -80,7 +88,6 @@ public class Escucha extends compiladorBaseListener {
         ts.delContexto();
         contexto--;
     }
-
 
     /*
      * Guardo el especificador de tipo de declaracion y de parametros
@@ -109,12 +116,11 @@ public class Escucha extends compiladorBaseListener {
                 System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Uso del identificador no declarado \'"
                         + nombreActualVariable + "\' " + Colors.ANSI_RESET);
                 errors = true;
-            } else if((idCorrente = ts.buscarSimbolo(nombreActualVariable)) instanceof Funcion){
+            } else if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) instanceof Funcion) {
                 System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Función \'"
-                        + nombreActualVariable + "\' " + " no es asignable" +Colors.ANSI_RESET);
+                        + nombreActualVariable + "\' " + " no es asignable" + Colors.ANSI_RESET);
                 errors = true;
-            }
-            else {
+            } else {
                 idCorrente.setInicializado(true);
             }
         }
@@ -146,8 +152,8 @@ public class Escucha extends compiladorBaseListener {
     public void exitInit_declarador(Init_declaradorContext ctx) {
         String nombreId = "";
         Id id;
+
         if (((DeclaradorContext) ctx.children.get(0)).ID() != null) {
-            definicion = false;
             nombreId = ((DeclaradorContext) ctx.children.get(0)).ID().toString();
             id = new Variable(specificadorActual, nombreId);
             if (ctx.children.size() > 1)
@@ -178,7 +184,7 @@ public class Escucha extends compiladorBaseListener {
 
                         tipoParam = extractTipoDato(ctn);
                         nomeParam = extractNombre(ctn);
-                        f.addArgumento(tipoParam);
+                        params.add(new Variable(tipoParam, nomeParam));
                     }
                 }
             }
@@ -211,8 +217,10 @@ public class Escucha extends compiladorBaseListener {
                     errors = true;
                 }
             }
-        } else
+        } else {
             ts.addSimbolo(id);
+            
+        }
 
         super.exitInit_declarador(ctx);
     }
@@ -231,7 +239,4 @@ public class Escucha extends compiladorBaseListener {
         super.enterDefinicion_funcion(ctx);
     }
 
-    
-
-    
 }
