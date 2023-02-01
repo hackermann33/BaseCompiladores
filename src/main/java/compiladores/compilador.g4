@@ -5,9 +5,9 @@ grammar compilador;
 package compiladores;
 }
 
-fragment LETRA:		[A-Za-z];
-fragment DIGITO:	[0-9];
-fragment NUMERO:	(DIGITO)+;
+fragment LETRA:[A-Za-z];
+fragment DIGITO:[0-9];
+fragment NUMERO:(DIGITO)+;
 
 PA:		'(';
 PC:		')';
@@ -57,7 +57,8 @@ RETURN:		'return';
 
 ID: (LETRA | '_') (LETRA | DIGITO | '_')*;
 
-NUMERO_INT: (NUMERO);
+NUMERO_INT:		(NUMERO);
+NUMERO_FLOAT:	(NUMERO '.' NUMERO);
 
 WS:				[ \t\n\r] -> skip;
 COMMENT:		'/*' .*? '*/' -> skip;
@@ -133,18 +134,20 @@ operador_asignacion
 	| ADD_ASIGN
 	| SUB_ASIGN;
 
-expresion_primaria: ID | PA expresion PC | NUMERO_INT;
+expresion_primaria
+	: ID
+	| PA expresion PC
+	| NUMERO_INT
+	| NUMERO_FLOAT;
 
 lista_parametros_expresiones
 	: expresion_asignacion
 	| lista_parametros_expresiones COM expresion_asignacion
 	|;
 
-operador_prefijo: 
-	INC_OP | DEC_OP | DIFF | SUMA;
+operador_prefijo: INC_OP | DEC_OP | DIFF | SUMA;
 
-operador_postfijo:
-	INC_OP | DEC_OP;
+operador_postfijo: INC_OP | DEC_OP;
 
 expresion_postfija
 	: expresion_primaria
@@ -166,7 +169,7 @@ init_lista_declarador
 
 init_declarador
 	: declarador
-	| declarador IGU expresion_asignacion ;
+	| declarador IGU expresion_asignacion;
 
 specificador_tipo: INT | VOID | DOUBLE;
 
@@ -195,12 +198,11 @@ statement
 expression_statement: PYC | expresion PYC;
 
 seleccion
-	: IF PA expresion PC statement #seleccion_if
-	| IF PA expresion PC statement ELSE statement #seleccion_if_else
-	;
+	: IF PA expresion PC statement					# seleccion_if
+	| IF PA expresion PC statement ELSE statement	# seleccion_if_else;
 
 iteracion
-	: WHILE PA expresion PC statement 
+	: WHILE PA expresion PC statement
 	| DO statement WHILE PA expresion PC PYC
 	| FOR PA expression_statement expression_statement PC statement
 	| FOR PA expression_statement expression_statement expresion PC statement

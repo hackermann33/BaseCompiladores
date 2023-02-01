@@ -7,6 +7,8 @@ import java.util.Queue;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import compiladores.TablaSimbolos.TablaSimbolos;
+import compiladores.TablaSimbolos.Id.TipoDato;
 import compiladores.compiladorParser.BloqueContext;
 import compiladores.compiladorParser.Definicion_funcionContext;
 import compiladores.compiladorParser.Expresion_aditivaContext;
@@ -19,6 +21,8 @@ import compiladores.compiladorParser.Expresion_postfijaContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
 import compiladores.compiladorParser.Init_declaradorContext;
+import compiladores.compiladorParser.InstruccionContext;
+import compiladores.compiladorParser.InstruccionesContext;
 import compiladores.compiladorParser.IteracionContext;
 import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.Lista_parametros_expresionesContext;
@@ -63,7 +67,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("//operacion " + ctx.getText());
             String id = ctx.ID().getText();
             String op = ctx.operador_asignacion().getChild(0).getText();
-            
+
             if (op.equals("=")) {
                 int numTokens = ctx.getSourceInterval().b - ctx.getSourceInterval().a + 1;
                 if (numTokens != 3 && numTokens != 5) {
@@ -81,7 +85,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     System.out.println(ctx.getText());
                 }
             }
-            if(funcionesPostfijas.size() > 0){
+            if (funcionesPostfijas.size() > 0) {
                 funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
                 funcionesPostfijas.clear();
             }
@@ -225,8 +229,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     System.out.printf("t%d = %s\n", n, term1);
                 }
                 return ("t" + n++);
-            }
-            else {
+            } else {
                 op = (ctx.operador_postfijo().getText());
                 if (op.equals("++") || op.equals("--")) {
                     op = op.substring(0, 1);
@@ -234,14 +237,16 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                 }
                 return (term1);
             }
-            
+
         } else if (ctx.children.size() == 4) {
             System.out.println("//funcion call: " + ctx.getText());
             System.out.println(super.visit(ctx.lista_parametros_expresiones()));
             System.out.println("push l" + l);
             System.out.println("jump " + ctx.ID());
             System.out.println("label l" + l++);
-            System.out.println("pop res" + r);
+            TablaSimbolos ts = TablaSimbolos.getInstanceOf();
+            if (ts.buscarSimboloLocal(ctx.ID().getText()).getTipo() != TipoDato.VOID)
+                System.out.println("pop res" + r);
             return ("res" + r++);
         } else
             return (String) super.visit(ctx.expresion_primaria());
@@ -339,7 +344,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             if (numTokens != 3 && numTokens != 5) {
                 res = (String) super.visit(ctx.expresion_asignacion());
                 System.out.printf("%s %s %s\n", id, "=", res);
-                if(funcionesPostfijas.size() > 0){
+                if (funcionesPostfijas.size() > 0) {
                     funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
                     funcionesPostfijas.clear();
                 }
@@ -353,17 +358,19 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitLista_parametros_expresiones(Lista_parametros_expresionesContext ctx) {
-        if (ctx.children.size() > 1) {
-            super.visit(ctx.lista_parametros_expresiones());
-            String arg2 = (String) super.visit(ctx.expresion_asignacion());
-            System.out.println("push " + arg2);
-            return arg2;
-        } else {
-            String arg = (String) super.visit(ctx.expresion_asignacion());
-            System.out.println("push " + arg);
-            return arg;
-
+        if (ctx.children != null) {
+            if (ctx.children.size() > 1) {
+                super.visit(ctx.lista_parametros_expresiones());
+                String arg2 = (String) super.visit(ctx.expresion_asignacion());
+                System.out.println("push " + arg2);
+                return arg2;
+            } else {
+                String arg = (String) super.visit(ctx.expresion_asignacion());
+                System.out.println("push " + arg);
+                return arg;
+            }
         }
+        return "";
     }
 
     @Override
@@ -374,7 +381,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         super.visit(ctx.init_declarador());
         System.out.println("pop ret");
         String res = (String) super.visit(ctx.bloque());
-        if(ret){
+        if (ret) {
             System.out.println("push " + res);
             ret = false;
         }
@@ -396,10 +403,17 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitSalto(SaltoContext ctx) {
-        if(ctx.RETURN() != null)
+        if (ctx.RETURN() != null)
             ret = true;
 
         return super.visitSalto(ctx);
+    }
+
+    @Override
+    public Object visitInstruccion(InstruccionContext ctx) {
+        if (!ret) /* Non genera codice dopo il return */
+            return super.visitInstruccion(ctx);
+        return "0";
     }
 
 }

@@ -1,0 +1,34 @@
+1. ¿qué nivel de detalle se exige en los errores?
+ Por ejemplo, ¿debo añadir los errores en break, continue y return 
+ si se ponen en el lugar equivocado? Porque no pude manejarlo en la parte 
+ del analizador léxico y por lo tanto debería manejarlo en la parte del analizador semántico
+
+2. No he implementado el switch, ¿debería ponerlo?
+
+3. ¿He implementado el return en la parte CTD? ¿Debo añadir también break, continue y return?
+
+4. Con el return no genero código de tres vías. Estas bien?
+
+5. Con el código de tres vías, ¿debo expandir i++, i+=a, etc.?
+
+6. ¿Debo añadir también el control de tipo?
+
+7. antlr genera automáticamente los errores sintácticos, 
+   pero el mensaje no es muy claro?
+  ¿Puedo dejarlo así o tengo que aplicar también esta parte?
+   He visto la documentación y es un poco complicado redefinirlos, hay que añadir un ErrorListener.
+
+8. ¿Existen archivos isource con los que pueda probar mi programa?
+   Porque los casos posibles son realmente muchos y me temo que no he considerado 
+   alguna situación
+
+9. ¿Puedo hacer el optimizador con un código "clásico" del TAC 
+   generado o tengo que hacerlo con los visitors?
+
+10. ¿Debo explicar en el pdf cómo y por qué he generado la gramática o debe ser más genérico?
+
+11. Para el código de tres vías, ¿genero el código directamente o 
+    añado algunos comentarios para una mejor comprensión? 
+    O tal vez genere dos, una con comentarios y otra sin ellos.
+
+    ¿Declaraciones en el código tres doreciones o sólo operaciones?

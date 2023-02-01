@@ -88,6 +88,7 @@ public class TablaSimbolos {
             return null;
         return tabla.get(tabla.size()-1).get(idNombre);
     }
+    
     public void imprimeWarnings() {
         String tipo;
         String fin;
@@ -107,8 +108,6 @@ public class TablaSimbolos {
     public String toString() {
 
         String str = "Tabla de símbolos:\n";
-
-
     
         String leftAlignFormat = " %-3s | %-5s | %-27s | %-6s | %-7s |\n";
 

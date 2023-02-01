@@ -1,7 +1,23 @@
-int f() {
-    int a,b,c = a++;
 
-    b = c++; 
+int f(int a, int b);
+int f(int a, int b)
+{
+    // for(int a = 0 ; a < 10; a++);
+    int a, b;
+
+    // 3 = 3 * f(1, 2, 3, 4);
+
+    // while (a < 3)
+    // {
+    //     int b;
+    //     a += 2;
+    // }
+    // a = 4;
+    // f(1,3);
+    // return a + 2 * 3;
+    // for(int a = 0 ; a < 10; a++){
+    //     int a;
+    // }
 }
 
 // int main() {
@@ -22,9 +38,7 @@ int f() {
 //     //     x+=3;
 
 //     //int a = f(1+4+94,2-2) ;
-    
 
-    
 //     // if(y == 0)
 //     // if(x >= 0)
 //     //     x = 0;

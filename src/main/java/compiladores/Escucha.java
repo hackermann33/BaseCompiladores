@@ -16,6 +16,7 @@ import compiladores.compiladorParser.Declaracion_parametroContext;
 import compiladores.compiladorParser.DeclaradorContext;
 import compiladores.compiladorParser.Definicion_funcionContext;
 import compiladores.compiladorParser.Expresion_asignacionContext;
+import compiladores.compiladorParser.Expresion_postfijaContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.IteracionContext;
@@ -23,6 +24,7 @@ import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.ProgramaContext;
 import compiladores.compiladorParser.Specificador_tipoContext;
 import compiladores.TablaSimbolos.Funcion;
+import compiladores.TablaSimbolos.Helper;
 import compiladores.TablaSimbolos.Id;
 import compiladores.TablaSimbolos.Id.TipoDato;
 import compiladores.TablaSimbolos.TablaSimbolos;
@@ -33,7 +35,6 @@ public class Escucha extends compiladorBaseListener {
     private int contexto = 0;
     private String tablaContextosStr = "";
     private TablaSimbolos ts;
-    private TipoDato specificadorActual = null;
     private boolean definicion = false;
     public boolean errors = false;
     List<Variable> params = new LinkedList<>();
@@ -66,13 +67,12 @@ public class Escucha extends compiladorBaseListener {
 
     @Override
     public void enterBloque(BloqueContext ctx) {
-
         contexto++;
         ts.addContexto();
         tablaContextosStr += "[" + (contexto - 1) + " -> " + contexto + "] ";
         tablaContextosStr += "entrando en el nuevo contexto " + contexto + "\n";
         tablaContextosStr += ts + "\n";
-        if (definicion) {
+        if (definicion) { /* TODO: non è possibile creare un contesto qui!!! C-standard */
             params.forEach((p) -> ts.addSimbolo(p));
             params.clear();
             definicion = false;
@@ -95,8 +95,7 @@ public class Escucha extends compiladorBaseListener {
     @Override
     public void exitSpecificador_tipo(Specificador_tipoContext ctx) {
         TipoDato res = TipoDato.valueOf(ctx.getStart().getText().toUpperCase());
-
-        specificadorActual = res; /* function or varialble */
+        Helper.setSpecificadorActual(res);
         super.exitSpecificador_tipo(ctx);
     }
 
@@ -107,45 +106,16 @@ public class Escucha extends compiladorBaseListener {
      */
     @Override
     public void exitExpresion_asignacion(Expresion_asignacionContext ctx) {
-
-        String nombreActualVariable;
-        Id idCorrente;
-        if (ctx.ID() != null) {
-            nombreActualVariable = ctx.ID().toString();
-            if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) == null) {
-                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Uso del identificador no declarado \'"
-                        + nombreActualVariable + "\' " + Colors.ANSI_RESET);
-                errors = true;
-            } else if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) instanceof Funcion) {
-                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ":error: Función \'"
-                        + nombreActualVariable + "\' " + " no es asignable" + Colors.ANSI_RESET);
-                errors = true;
-            } else {
-                idCorrente.setInicializado(true);
-            }
-        }
+        if (ctx.ID() != null)
+            errors = Helper.checkAsignacion(ctx, ctx.ID().toString(), false);
         super.exitExpresion_asignacion(ctx);
     }
 
     @Override
     public void exitExpresion_primaria(Expresion_primariaContext ctx) {
-        String nombreActualVariable;
-        Id idCorrente;
-        if (ctx.ID() != null) {
-            nombreActualVariable = ctx.ID().toString();
-            if ((idCorrente = ts.buscarSimbolo(nombreActualVariable)) == null) {
-                System.out.println(Colors.RED_BOLD + "error: Uso del identificador no declarado \'"
-                        + nombreActualVariable + "\' " + Colors.ANSI_RESET);
-                errors = true;
-            } else {
-                idCorrente.setUsado(true);
-            }
-        }
+        if (ctx.ID() != null)
+            errors = Helper.checkAsignacion(ctx, ctx.ID().toString(), true);
         super.exitExpresion_primaria(ctx);
-    }
-
-    String getPoint(ParserRuleContext ctx) {
-        return ctx.getStart().getLine() + ":" + ctx.getStart().getCharPositionInLine();
     }
 
     @Override
@@ -155,39 +125,26 @@ public class Escucha extends compiladorBaseListener {
 
         if (((DeclaradorContext) ctx.children.get(0)).ID() != null) {
             nombreId = ((DeclaradorContext) ctx.children.get(0)).ID().toString();
-            id = new Variable(specificadorActual, nombreId);
+            id = new Variable(Helper.getSpecificadorActual(), nombreId);
             if (ctx.children.size() > 1)
                 id.setInicializado(true);
         } else {
             nombreId = ((DeclaradorContext) ctx.getChild(0).getChild(0)).ID().toString();
-            Funcion f = new Funcion(specificadorActual, nombreId);
+            Funcion f = new Funcion(Helper.getSpecificadorActual(), nombreId);
 
             if (ctx.children.size() > 1) {
-                System.out.println(Colors.RED_BOLD + getPoint(ctx) + ": error: la función \'" + nombreId
-                        + "\' es inicializada como una variable" + Colors.ANSI_RESET);
-                errors = true;
-
+                Helper.printError(ctx, "la función \'" + nombreId
+                        + "\' es inicializada como una variable");
             }
 
             /* Calcolo parametros */
-            List<ParseTree> listaParametrosChilds = ((DeclaradorContext) ctx.getChild(0)).lista_parametros().children;
+            Lista_parametrosContext listaParametros = ((DeclaradorContext) ctx.getChild(0)).lista_parametros();
 
             TipoDato tipoParam = null;
             String nomeParam = "";
 
-            if (listaParametrosChilds != null) {
-                for (ParseTree tn : listaParametrosChilds) {
-                    if (!(tn instanceof TerminalNode)) {
-                        Declaracion_parametroContext ctn = tn instanceof Declaracion_parametroContext
-                                ? (Declaracion_parametroContext) tn
-                                : ((Lista_parametrosContext) tn).declaracion_parametro();
-
-                        tipoParam = extractTipoDato(ctn);
-                        nomeParam = extractNombre(ctn);
-                        params.add(new Variable(tipoParam, nomeParam));
-                    }
-                }
-            }
+            if (listaParametros != null)
+                addArgumentos(f, listaParametros);
             id = f;
 
             if (definicion) {
@@ -197,9 +154,8 @@ public class Escucha extends compiladorBaseListener {
 
         if (ts.buscarSimboloLocal(nombreId) != null) {
             if (!definicion) {
-                System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: identificador " + "\'" + id.getNombre()
-                        + "\' ya usado en esto contexto!" + Colors.ANSI_RESET);
-                errors = true;
+                Helper.printError(ctx, "identificador " + "\'" + id.getNombre()
+                        + "\' ya usado en esto contexto!");
             } else {
                 definicion = false;
                 Funcion f = (Funcion) ts.buscarSimboloLocal(nombreId);
@@ -207,22 +163,33 @@ public class Escucha extends compiladorBaseListener {
                     if (f.getArgs().equals(((Funcion) id).getArgs()))
                         f.setInicializado(true);
                     else {
-                        System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: tipos conflictivos para \'"
-                                + nombreId + "\'" + Colors.ANSI_RESET);
-                        errors = true;
+                        Helper.printError(ctx, "tipos conflictivos para función \'"
+                                + nombreId + "\'");
                     }
                 } else {
-                    System.out.println(Colors.RED_BOLD + getPoint(ctx) + " :error: redefinición de \'" + nombreId + "\'"
-                            + Colors.ANSI_RESET);
-                    errors = true;
+                    Helper.printError(ctx, "redefinición de \'" + nombreId + "\'");
                 }
             }
         } else {
             ts.addSimbolo(id);
-            
+
         }
 
         super.exitInit_declarador(ctx);
+    }
+
+    private void addArgumentos(Funcion f, Lista_parametrosContext listaParametros) {
+        if (listaParametros.declaracion_parametro() != null) {
+            TipoDato tdArg = TipoDato
+                    .valueOf(listaParametros.declaracion_parametro().specificador_tipo().getText().toUpperCase());
+            String nombreArg = listaParametros.declaracion_parametro().declarador().ID().getText();
+            Variable v = new Variable(tdArg, nombreArg);
+            f.addArgumento(tdArg);
+            params.add(v);
+            if (listaParametros.lista_parametros() != null)
+                addArgumentos(f, listaParametros.lista_parametros());
+        }
+
     }
 
     String extractNombre(Declaracion_parametroContext dpctx) {
@@ -237,6 +204,68 @@ public class Escucha extends compiladorBaseListener {
     public void enterDefinicion_funcion(Definicion_funcionContext ctx) {
         definicion = true;
         super.enterDefinicion_funcion(ctx);
+    }
+
+    @Override
+    public void visitTerminal(TerminalNode node) {
+        if (node.getText().equals("for")) { /* shortTo handle for contexts */
+            ts.addContexto();
+            contexto++;
+        }
+        super.visitTerminal(node);
+    }
+
+    @Override
+    public void exitIteracion(IteracionContext ctx) {
+        if (ctx.FOR() != null) {
+            ts.delContexto();
+            contexto--;
+        }
+        super.exitIteracion(ctx);
+    }
+
+    @Override
+    public void exitExpresion_postfija(Expresion_postfijaContext ctx) {
+        if (ctx.children.size() == 4) {
+            String nombreFuncion = ctx.ID().getText();
+            Id f;
+            if ((f = ts.buscarSimbolo(nombreFuncion)) == null) {
+                Helper.printError(ctx, "uso del identificador no declarado \'"
+                        + nombreFuncion + "\' ");
+            } else if (f instanceof Variable) {
+                Helper.printError(ctx, "objeto llamado de tipo \'" + f.getTipo().toString().toLowerCase()
+                        + "\' no es una función");
+            } else {
+                int nTokens = ctx.lista_parametros_expresiones().getSourceInterval().b
+                        - ctx.lista_parametros_expresiones().getSourceInterval().a + 1;
+                int nParams = nTokens > 0 ? nTokens / 2 + 1 : 0;
+                int nParamsFunc = ((Funcion) f).getArgs().size();
+
+                if (nParams > nParamsFunc)
+                    Helper.printError(ctx,
+                            String.format("demasiados argumentos para llamar a la función, esperaba %d, tiene %d",
+                                    nParamsFunc, nParams));
+                else if (nParams < nParamsFunc)
+                    Helper.printError(ctx, String.format(
+                            "demasiados pocos argumentos para llamar a la función, se esperaban %d, tienen %d",
+                            nParamsFunc, nParams));
+                else
+                    f.setUsado(true);
+            }
+            super.exitExpresion_postfija(ctx);
+        } else if (ctx.children.size() > 1) { /* Operaciòn postfija o prefija */
+            String nombreVariable = ctx.ID().getText();
+            Id var;
+            if ((var = ts.buscarSimbolo(nombreVariable)) == null) {
+                Helper.printError(ctx, "uso del identificador no declarado \'"
+                        + nombreVariable + "\' ");
+            } else if (var instanceof Funcion) {
+                Helper.printError(ctx, "no es posible incrementar o decrementar un valor de tipo \'"
+                        + var.toString() + "\' ");
+            } else
+                var.setUsado(true);
+
+        }
     }
 
 }
