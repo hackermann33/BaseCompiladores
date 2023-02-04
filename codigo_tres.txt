@@ -1,0 +1,14 @@
+//definicion funcion: intmain(int,int){inta,b;b=3-9/b--+5*a++;return4;}
+pop param0
+pop param1
+pop ret
+//operacion b=3-9/b--+5*a++
+t0 = 9 / b
+t1 = 3 - t0
+t2 = 5 * a
+t3 = t1 + t2
+b = t3
+//RETURN return4;
+push 4
+jmp ret
+jump ret

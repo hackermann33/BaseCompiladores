@@ -36,7 +36,8 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "compiladores.App",
-            "projectName": "proyectobase"
+            "projectName": "proyectobase",
+            "vmArgs": "-enableassertions"
         }
     ]
 }

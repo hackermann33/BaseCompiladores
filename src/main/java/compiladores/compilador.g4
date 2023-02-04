@@ -5,9 +5,9 @@ grammar compilador;
 package compiladores;
 }
 
-fragment LETRA:[A-Za-z];
-fragment DIGITO:[0-9];
-fragment NUMERO:(DIGITO)+;
+fragment LETRA:		[A-Za-z];
+fragment DIGITO:	[0-9];
+fragment NUMERO:	(DIGITO)+;
 
 PA:		'(';
 PC:		')';

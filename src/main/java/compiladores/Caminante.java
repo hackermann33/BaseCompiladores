@@ -1,12 +1,10 @@
 package compiladores;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
 import compiladores.TablaSimbolos.TablaSimbolos;
 import compiladores.TablaSimbolos.Id.TipoDato;
 import compiladores.compiladorParser.BloqueContext;
@@ -22,7 +20,6 @@ import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
 import compiladores.compiladorParser.Init_declaradorContext;
 import compiladores.compiladorParser.InstruccionContext;
-import compiladores.compiladorParser.InstruccionesContext;
 import compiladores.compiladorParser.IteracionContext;
 import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.Lista_parametros_expresionesContext;
@@ -38,25 +35,38 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     int r = 0;
     String id;
     String op;
-    private boolean definicion;
     private int p;
-    private Queue<String> funcionesPostfijas = new LinkedList<String>();
-    private boolean ret;
+    private String operacionPostfija;
+    private String codigoTresStr = "";
 
     @Override
     public Object visitBloque(BloqueContext ctx) {
-        // System.out.println(" == Bloque tiene " + ctx.getChildCount() + " hijos");
-        // System.out.println(" == Hijo 0 -> " + ctx.getChild(0).getText());
-        // System.out.println(" == Hijo 1 -> " + ctx.getChild(1).getText());
-        // System.out.println(" == Hijo 2 -> " + ctx.getChild(2).getText());
+        // codigoTresStr += String.format(" == Bloque tiene " + ctx.getChildCount() + "
+        // hijos");
+        // codigoTresStr += String.format(" == Hijo 0 -> " + ctx.getChild(0).getText());
+        // codigoTresStr += String.format(" == Hijo 1 -> " + ctx.getChild(1).getText());
+        // codigoTresStr += String.format(" == Hijo 2 -> " + ctx.getChild(2).getText());
         return super.visitBloque(ctx);
     }
 
     @Override
     public Object visitPrograma(ProgramaContext ctx) {
-        System.out.println("Comienza visita de el arbol");
+        System.out.println("\n> Comienza visita de el arbol");
         Object o = super.visitPrograma(ctx);
-        System.out.println("Fin visita de el arbol");
+        System.out.println("> Fin visita de el arbol");
+        try {
+            FileWriter escritor = new FileWriter("codigo_tres.txt");
+            File f = new File("codigo_tres.txt");
+            escritor.write(codigoTresStr);
+            System.out.println(
+                    "> archivo con código de tres direcciones guardado correctamente en \'" + f.getAbsolutePath()
+                            + "\'");
+            escritor.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        System.out.println("> fin de la compilacion");
         return o;
     }
 
@@ -64,7 +74,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     public Object visitExpresion_asignacion(Expresion_asignacionContext ctx) {
         String res;
         if (ctx.ID() != null) {
-            System.out.println("//operacion " + ctx.getText());
+            codigoTresStr += String.format("//operacion " + ctx.getText() + "\n");
             String id = ctx.ID().getText();
             String op = ctx.operador_asignacion().getChild(0).getText();
 
@@ -72,23 +82,20 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                 int numTokens = ctx.getSourceInterval().b - ctx.getSourceInterval().a + 1;
                 if (numTokens != 3 && numTokens != 5) {
                     res = (String) super.visit(ctx.expresion_asignacion());
-                    System.out.printf("%s %s %s\n", id, op, res);
+                    codigoTresStr += String.format("%s %s %s\n", id, op, res);
                 } else
-                    System.out.println(ctx.getText());
+                    codigoTresStr += String.format(ctx.getText() + "\n");
             } else {
                 op = op.substring(0, 1);
                 if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 3) {
                     res = (String) super.visit(ctx.expresion_asignacion());
-                    System.out.printf("%s %s %s %s %s\n", id, "=", id, op, res);
+                    codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, res);
                 } else {
-                    System.out.printf("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
-                    System.out.println(ctx.getText());
+                    codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
+                    codigoTresStr += String.format(ctx.getText() + "\n");
                 }
             }
-            if (funcionesPostfijas.size() > 0) {
-                funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
-                funcionesPostfijas.clear();
-            }
+
             return "t" + n;
         }
 
@@ -106,7 +113,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
             add2 = (String) super.visit(ctx.expresion_logica_and());
 
-            System.out.printf("t%d = %s %s %s\n", n, add1, op, add2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, add1, op, add2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -125,7 +133,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
             add2 = (String) super.visit(ctx.expresion_igualdad());
 
-            System.out.printf("t%d = %s %s %s\n", n, add1, op, add2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, add1, op, add2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -144,7 +153,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
             add2 = (String) super.visit(ctx.expresion_relacional());
 
-            System.out.printf("t%d = %s %s %s\n", n, add1, op, add2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, add1, op, add2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -163,7 +173,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
             add2 = (String) super.visit(ctx.expresion_aditiva());
 
-            System.out.printf("t%d = %s %s %s\n", n, add1, op, add2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, add1, op, add2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -183,7 +194,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
             op = ctx.operador_adicion().getText();
 
-            System.out.printf("t%d = %s %s %s\n", n, add1, op, add2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, add1, op, add2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -202,7 +214,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             term2 = (String) super.visit(ctx.expresion_postfija());
 
             String op = ctx.operador_multiplicacion().getText();
-            System.out.printf("t%d = %s %s %s\n", n, term1, op, term2);
+            codigoTresStr += String.format("t%d = %s %s %s\n", n, term1, op, term2);
+            checkYImprimePostFija();
 
             return ("t" + n++);
         } else {
@@ -222,31 +235,34 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                 op = (ctx.operador_prefijo().getText());
                 if (op.equals("++") || op.equals("--")) {
                     op = op.substring(0, 1);
-                    System.out.printf("t%d = %s %s %s\n", n, term1, op, "1");
+                    codigoTresStr += String.format("t%d = %s %s %s\n", n, term1, op, "1");
                 } else if (op.equals("-")) {
-                    System.out.printf("t%d = %s %s %s\n", n, "0", op, term1);
+                    codigoTresStr += String.format("t%d = %s %s %s\n", n, "0", op, term1);
                 } else {
-                    System.out.printf("t%d = %s\n", n, term1);
+                    codigoTresStr += String.format("t%d = %s\n", n, term1);
                 }
                 return ("t" + n++);
             } else {
                 op = (ctx.operador_postfijo().getText());
                 if (op.equals("++") || op.equals("--")) {
                     op = op.substring(0, 1);
-                    funcionesPostfijas.add(String.format("%s = %s %s %s\n", term1, term1, op, "1"));
+                    // codigoTresStr += String.format("%s = %s %s %s\n", term1, term1, op, "1");
+                    // funcionesPostfijas.add(String.format("%s = %s %s %s\n", term1, term1, op,
+                    // "1"));
+                    operacionPostfija = String.format("%s = %s %s %s\n", term1, term1, op, "1");
                 }
                 return (term1);
             }
 
         } else if (ctx.children.size() == 4) {
-            System.out.println("//funcion call: " + ctx.getText());
-            System.out.println(super.visit(ctx.lista_parametros_expresiones()));
-            System.out.println("push l" + l);
-            System.out.println("jump " + ctx.ID());
-            System.out.println("label l" + l++);
+            codigoTresStr += String.format("//funcion call: " + ctx.getText() + "\n");
+            codigoTresStr += String.format((String) super.visit(ctx.lista_parametros_expresiones()) + "\n");
+            codigoTresStr += String.format("push l" + l + "\n");
+            codigoTresStr += String.format("jump " + ctx.ID() + "\n");
+            codigoTresStr += String.format("label l" + l++ + "\n");
             TablaSimbolos ts = TablaSimbolos.getInstanceOf();
             if (ts.buscarSimboloLocal(ctx.ID().getText()).getTipo() != TipoDato.VOID)
-                System.out.println("pop res" + r);
+                codigoTresStr += String.format("pop res" + r + "\n");
             return ("res" + r++);
         } else
             return (String) super.visit(ctx.expresion_primaria());
@@ -264,12 +280,12 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitSeleccion_if(Seleccion_ifContext ctx) {
-        System.out.println("//operacion " + ctx.getText());
+        codigoTresStr += String.format("//operacion " + ctx.getText() + "\n");
         String cond = (String) super.visit(ctx.expresion());
         int oldL = l;
-        System.out.printf("ifnjmp %s,l%d\n", cond, l++);
+        codigoTresStr += String.format("ifnjmp %s,l%d\n", cond, l++ + "\n");
         String caso = (String) super.visit(ctx.statement());
-        System.out.println("label l" + oldL);
+        codigoTresStr += String.format("label l" + oldL + "\n");
         return "l" + l;
     }
 
@@ -278,37 +294,37 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         String stat = ctx.children.stream().map(pt -> pt.getText())
                 .reduce("", (part, element) -> part + " " + element);
         ;
-        System.out.println("//operacion \'" + stat + "\'");
+        codigoTresStr += String.format("//operacion \'" + stat + "\'" + "\n");
         int oldL = l;
         String cond = (String) super.visit(ctx.expresion());
-        System.out.printf("ifnjmp %s,l%d\n", cond, l++);
+        codigoTresStr += String.format("ifnjmp %s,l%d\n", cond, l++);
         super.visit(ctx.statement(0));
-        System.out.printf("jmp l%d\n", l);
-        System.out.println("label l" + oldL);
+        codigoTresStr += String.format("jmp l%d\n", l);
+        codigoTresStr += String.format("label l" + oldL + "\n");
         super.visit(ctx.statement(1));
-        System.out.println("label l" + (oldL + 1));
+        codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
         return "l" + l;
     }
 
     @Override
     public Object visitIteracion(IteracionContext ctx) {
-        System.out.println("//iteracion " + ctx.getText());
+        codigoTresStr += String.format("//iteracion " + ctx.getText() + "\n");
         if (ctx.getChild(0).getText().equals("while")) {
             String cond = (String) super.visit(ctx.expresion());
             int oldL = l;
-            System.out.println("label l" + l++);
-            System.out.println("ifnjmp " + cond + ",l" + l);
+            codigoTresStr += String.format("label l" + l++ + "\n");
+            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l + "\n");
             super.visit(ctx.statement());
-            System.out.println("jmp l" + oldL);
-            System.out.println("label l" + (oldL + 1));
+            codigoTresStr += String.format("jmp l" + oldL + "\n");
+            codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
             return "l" + l++;
         } else if (ctx.getChild(0).getText().equals("do")) {
             int oldL = l;
-            System.out.println("label l" + l++);
+            codigoTresStr += String.format("label l" + l++ + "\n");
             super.visit(ctx.statement());
             String cond = (String) super.visit(ctx.expresion());
-            System.out.println("ifjmp " + cond + ",l" + oldL);
-            System.out.println("jmp l" + oldL);
+            codigoTresStr += String.format("ifjmp " + cond + ",l" + oldL + "\n");
+            codigoTresStr += String.format("jmp l" + oldL + "\n");
             return "l" + l;
         } else if (ctx.getChild(0).getText().equals("for")) {
             ParseTree initIstr, condIstr;
@@ -320,13 +336,13 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             super.visit(initIstr);
             String cond = (String) super.visit(condIstr);
             int oldL = l;
-            System.out.println("label l" + l++);
-            System.out.println("ifnjmp " + cond + ",l" + l);
+            codigoTresStr += String.format("label l" + l++ + "\n");
+            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l + "\n");
             if (ctx.expresion() != null)
                 super.visit(ctx.expresion());
             super.visit(ctx.statement());
-            System.out.println("jmp l" + oldL);
-            System.out.println("label l" + (oldL + 1));
+            codigoTresStr += String.format("jmp l" + oldL + "\n");
+            codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
             return "l" + l++;
         }
 
@@ -336,20 +352,17 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitInit_declarador(Init_declaradorContext ctx) {
         if (ctx.children.size() > 1) {
-            System.out.println("//operacion " + ctx.getText());
+            codigoTresStr += String.format("//operacion " + ctx.getText() + "\n");
             String id = ctx.declarador().ID().getText();
             String res;
 
             int numTokens = ctx.getSourceInterval().b - ctx.getSourceInterval().a + 1;
             if (numTokens != 3 && numTokens != 5) {
                 res = (String) super.visit(ctx.expresion_asignacion());
-                System.out.printf("%s %s %s\n", id, "=", res);
-                if (funcionesPostfijas.size() > 0) {
-                    funcionesPostfijas.forEach((operacion) -> System.out.print(operacion));
-                    funcionesPostfijas.clear();
-                }
+                codigoTresStr += String.format("%s %s %s\n", id, "=", res);
+
             } else
-                System.out.println(ctx.getText());
+                codigoTresStr += String.format(ctx.getText());
 
             return "t" + n;
         }
@@ -362,11 +375,11 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             if (ctx.children.size() > 1) {
                 super.visit(ctx.lista_parametros_expresiones());
                 String arg2 = (String) super.visit(ctx.expresion_asignacion());
-                System.out.println("push " + arg2);
+                codigoTresStr += String.format("push " + arg2 + "\n");
                 return arg2;
             } else {
                 String arg = (String) super.visit(ctx.expresion_asignacion());
-                System.out.println("push " + arg);
+                codigoTresStr += String.format("push " + arg + "\n");
                 return arg;
             }
         }
@@ -375,17 +388,17 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitDefinicion_funcion(Definicion_funcionContext ctx) {
-        definicion = true;
-        System.out.println("//definicion funcion: " + ctx.getText());
+        codigoTresStr += String.format("//definicion funcion: " + ctx.getText() + "\n");
         p = 0;
         super.visit(ctx.init_declarador());
-        System.out.println("pop ret");
+        codigoTresStr += String.format("pop ret" + "\n");
         String res = (String) super.visit(ctx.bloque());
-        if (ret) {
-            System.out.println("push " + res);
-            ret = false;
-        }
-        System.out.println("jump ret");
+        // if (ret) {
+        // codigoTresStr += String.format("push " + res+"\n");
+        // ret = false;
+        // }
+        codigoTresStr += String.format("jump ret" + "\n");
+
         return res;
     }
 
@@ -397,23 +410,38 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitLista_parametros(Lista_parametrosContext ctx) {
         if (ctx.declaracion_parametro() != null)
-            System.out.printf("pop %s\n", ctx.declaracion_parametro().declarador().getText());
+            codigoTresStr += String.format("pop param" + p++ + "\n");
         return super.visitLista_parametros(ctx);
     }
 
     @Override
     public Object visitSalto(SaltoContext ctx) {
-        if (ctx.RETURN() != null)
-            ret = true;
+        if (ctx.RETURN() != null) {
+            codigoTresStr += String.format("//RETURN " + ctx.getText() + "\n");
+            if (ctx.expresion() != null) {
+                String res = (String) super.visit(ctx.expresion());
+                codigoTresStr += String.format("push " + res + "\n");
+                checkYImprimePostFija();
+            }
+            codigoTresStr += String.format("jmp ret" + "\n");
 
-        return super.visitSalto(ctx);
+        }
+
+        return "t" + n;
     }
 
     @Override
     public Object visitInstruccion(InstruccionContext ctx) {
-        if (!ret) /* Non genera codice dopo il return */
-            return super.visitInstruccion(ctx);
-        return "0";
+        // if (!ret) /* Non genera codice dopo il return */
+        return super.visitInstruccion(ctx);
+        // return "l" + l;
+    }
+
+    public void checkYImprimePostFija() {
+        if (operacionPostfija != null) {
+            String.format(operacionPostfija + "\n");
+            operacionPostfija = null;
+        }
     }
 
 }
