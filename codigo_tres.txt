@@ -1,11 +1,62 @@
-//definicion funcion: intmain(){intx,a,c;x=-(3+a-7);return4;}
+pop param0
+//definicion funcion: intmain(){f(4);inti,j,k,sum=0;{inti,j,k;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}}
 pop ret
-//operacion x=-(3+a-7)
-t0 = 3 + a
-t1 = t0 - 7
-t2 = -t1
-x = t2
-//RETURN return4;
-push 4
+//funcion call: f(4)
+4
+push l0
+jump f
+label l0
+pop res0
+//operacion sum=0
+sum=0//operacion i=3+5
+i = 3 + 5
+//iteracion for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}
+//operacion i=0
+i = 0
+t0 = i < 10
+label l1
+ifnjmp t0,l2
+//iteracion for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}
+//operacion j=0
+j = 0
+t1 = j < 10
+label l2
+ifnjmp t1,l3
+//operacion k=i*j
+k = i * j
+//operacion if(k%2==0){intj;sum+=k;}
+t2 = k % 2
+t3 = t2 == 0
+ifnjmp t3,l3
+//operacion sum+=k
+sum = sum + k
+label l3
+jmp l2
+label l3
+jmp l1
+label l2
+//iteracion while(sum>100){sum-=50;}
+t4 = sum > 100
+label l6
+ifnjmp t4,l7
+//operacion sum-=50
+sum = sum - 50
+jmp l6
+label l7
+//operacion ' if ( sum<50 ) {i=3;return123;} else {i=4;return123;}'
+t5 = sum < 50
+ifnjmp t5,l8
+//operacion i=3
+i = 3
+//RETURN return123;
+push 123
 jmp ret
+jmp l9
+label l8
+//operacion i=4
+i = 4
+//RETURN return123;
+push 123
+jmp ret
+label l9
 jump ret
