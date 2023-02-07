@@ -19,7 +19,6 @@ import compiladores.compiladorParser.Expresion_postfijaContext;
 import compiladores.compiladorParser.Expresion_primariaContext;
 import compiladores.compiladorParser.Expresion_relacionalContext;
 import compiladores.compiladorParser.Init_declaradorContext;
-import compiladores.compiladorParser.InstruccionContext;
 import compiladores.compiladorParser.IteracionContext;
 import compiladores.compiladorParser.Lista_parametrosContext;
 import compiladores.compiladorParser.Lista_parametros_expresionesContext;
@@ -66,7 +65,6 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        System.out.println("> fin de la compilacion");
         return o;
     }
 
@@ -84,7 +82,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     res = (String) super.visit(ctx.expresion_asignacion());
                     codigoTresStr += String.format("%s %s %s\n", id, op, res);
                 } else
-                    codigoTresStr += String.format(ctx.getText() + "\n");
+                    codigoTresStr += String.format(ctx.getText().replace("", " ").trim() + "\n");
             } else {
                 op = op.substring(0, 1);
                 if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 3) {
@@ -92,7 +90,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, res);
                 } else {
                     codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
-                    codigoTresStr += String.format(ctx.getText() + "\n");
+                    codigoTresStr += String.format(ctx.getText().replace("", " ").trim() + "\n");
                 }
             }
 
@@ -226,34 +224,42 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitExpresion_postfija(Expresion_postfijaContext ctx) {
-        /* Solo caso prefissa */
         if (ctx.children.size() == 2) {
             String term1 = "";
-            term1 = ctx.ID().getText();
             String op = "";
+            /* Prefijo */
             if (ctx.children.get(0) instanceof Operador_prefijoContext) {
                 op = (ctx.operador_prefijo().getText());
-                if (op.equals("++") || op.equals("--")) {
-                    op = op.substring(0, 1);
-                    codigoTresStr += String.format("t%d = %s %s %s\n", n, term1, op, "1");
-                } else if (op.equals("-")) {
-                    codigoTresStr += String.format("t%d = %s %s %s\n", n, "0", op, term1);
-                } else {
-                    codigoTresStr += String.format("t%d = %s\n", n, term1);
+
+                if (ctx.expresion_primaria().children.size() == 1) {
+                    term1 = ctx.expresion_primaria().children.get(0).getText();
+                    if (op.equals("++") || op.equals("--")) {
+                        op = op.substring(0, 1);
+                        codigoTresStr += String.format("t%d = %s %s %s\n", n, term1, op, "1");
+                    } else if (op.equals("-")) {
+                        codigoTresStr += String.format("t%d = %s%s\n", n, op, term1);
+                    } else {
+                        codigoTresStr += String.format("t%d = %s\n", n, term1);
+                    }
+                    return ("t" + n++);
+                } else if (op.equals("-")) { // - expresion
+                    String res = (String) super.visit(ctx.expresion_primaria());
+                    codigoTresStr += String.format("t%d = %s%s\n", n, op, res);
+                    return ("t" + n++);
+                } else { // + expresion
+                    codigoTresStr += String.format("t%d = %s\n", n, (String) super.visit(ctx.expresion_primaria()));
+                    return ("t" + n++);
                 }
-                return ("t" + n++);
-            } else {
+            } else { // postfijo
+                term1 = ctx.ID().getText();
                 op = (ctx.operador_postfijo().getText());
                 if (op.equals("++") || op.equals("--")) {
                     op = op.substring(0, 1);
-                    // codigoTresStr += String.format("%s = %s %s %s\n", term1, term1, op, "1");
-                    // funcionesPostfijas.add(String.format("%s = %s %s %s\n", term1, term1, op,
-                    // "1"));
                     operacionPostfija = String.format("%s = %s %s %s\n", term1, term1, op, "1");
                 }
                 return (term1);
             }
-
+            /* Funcion (llamada) */
         } else if (ctx.children.size() == 4) {
             codigoTresStr += String.format("//funcion call: " + ctx.getText() + "\n");
             codigoTresStr += String.format((String) super.visit(ctx.lista_parametros_expresiones()) + "\n");
@@ -284,7 +290,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         String cond = (String) super.visit(ctx.expresion());
         int oldL = l;
         codigoTresStr += String.format("ifnjmp %s,l%d\n", cond, l++ + "\n");
-        String caso = (String) super.visit(ctx.statement());
+        super.visit(ctx.statement());
         codigoTresStr += String.format("label l" + oldL + "\n");
         return "l" + l;
     }
@@ -329,9 +335,8 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         } else if (ctx.getChild(0).getText().equals("for")) {
             ParseTree initIstr, condIstr;
 
-            initIstr = ctx.declaracion() != null ? ctx.declaracion() : ctx.expression_statement(0);
-            condIstr = ctx.declaracion() != null ? ctx.expression_statement(0).expresion()
-                    : ctx.expression_statement(1).expresion();
+            initIstr = ctx.expression_statement(0);
+            condIstr = ctx.expression_statement(1).expresion();
 
             super.visit(initIstr);
             String cond = (String) super.visit(condIstr);
@@ -393,10 +398,6 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         super.visit(ctx.init_declarador());
         codigoTresStr += String.format("pop ret" + "\n");
         String res = (String) super.visit(ctx.bloque());
-        // if (ret) {
-        // codigoTresStr += String.format("push " + res+"\n");
-        // ret = false;
-        // }
         codigoTresStr += String.format("jump ret" + "\n");
 
         return res;
@@ -428,13 +429,6 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         }
 
         return "t" + n;
-    }
-
-    @Override
-    public Object visitInstruccion(InstruccionContext ctx) {
-        // if (!ret) /* Non genera codice dopo il return */
-        return super.visitInstruccion(ctx);
-        // return "l" + l;
     }
 
     public void checkYImprimePostFija() {

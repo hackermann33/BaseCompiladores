@@ -16,8 +16,8 @@ public class Helper {
 
     public enum EstadoReturn {
         NO,
-        SIN_ARGS,
-        CON_ARGS
+        RET_VOID,
+        RET_VAL
     }
 
     private TablaSimbolos ts;
@@ -214,11 +214,20 @@ public class Helper {
                     System.err.println(Colors.CYAN_BOLD + "warning: La función \'" + f.getNombre()
                             + "\' non-void no retorna ningún valor" + Colors.ANSI_RESET);
 
-                else if (estadoReturn == EstadoReturn.SIN_ARGS)
+                else if (estadoReturn == EstadoReturn.RET_VOID)
                     printError(ctx, "La función non void \'" + f.getNombre() + "\' debe retornar un valor");
-            } else if (estadoReturn == EstadoReturn.CON_ARGS)
+            } else if (estadoReturn == EstadoReturn.RET_VAL)
                 printError(ctx, "La función void \'" + f.getNombre() + "\' no debería retornar un valor");
         }
+    }
+
+    public void checkIncremento(Expresion_postfijaContext ctx, String nombreVariabile) {
+        Id var = checkDeclarado(ctx, nombreVariabile);
+        if (var instanceof Funcion)
+            printError(ctx, "no es posible incrementar o decrementar un valor de tipo \'"
+                    + var.toString() + "\' ");
+        else
+            var.setUsado(true);
     }
 
 }

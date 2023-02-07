@@ -5,9 +5,9 @@ grammar compilador;
 package compiladores;
 }
 
-fragment LETRA:		[A-Za-z];
-fragment DIGITO:	[0-9];
-fragment NUMERO:	(DIGITO)+;
+fragment LETRA:[A-Za-z];
+fragment DIGITO:[0-9];
+fragment NUMERO:(DIGITO)+;
 
 PA:		'(';
 PC:		')';
@@ -151,7 +151,8 @@ operador_postfijo: INC_OP | DEC_OP;
 
 expresion_postfija
 	: expresion_primaria
-	| operador_prefijo ID
+	// | operador_prefijo ID
+	| operador_prefijo expresion_primaria
 	| ID operador_postfijo
 	| ID PA lista_parametros_expresiones PC;
 
@@ -205,9 +206,7 @@ iteracion
 	: WHILE PA expresion PC statement
 	| DO statement WHILE PA expresion PC PYC
 	| FOR PA expression_statement expression_statement PC statement
-	| FOR PA expression_statement expression_statement expresion PC statement
-	| FOR PA declaracion expression_statement PC statement
-	| FOR PA declaracion expression_statement expresion PC statement;
+	| FOR PA expression_statement expression_statement expresion PC statement;
 
 salto
 	: CONTINUE PYC

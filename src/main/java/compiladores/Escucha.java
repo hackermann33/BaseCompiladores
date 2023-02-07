@@ -78,7 +78,6 @@ public class Escucha extends compiladorBaseListener {
         ts.delContexto();
         contexto--;
 
-
     }
 
     /*
@@ -101,7 +100,6 @@ public class Escucha extends compiladorBaseListener {
             else
                 id.setInicializado(true);
         }
-        // help.checkAsignacion(ctx, ctx.ID().toString(), false);
         super.exitExpresion_asignacion(ctx);
     }
 
@@ -202,15 +200,23 @@ public class Escucha extends compiladorBaseListener {
             }
 
         } else if (ctx.children.size() > 1) { /* Operaciòn postfija o prefija */
-            String nombreVariable = ctx.ID().getText();
-            Id var = help.checkDeclarado(ctx, nombreVariable);
+            if (ctx.operador_prefijo() != null) {
+                /*
+                 * Si es incremento o decremento
+                 */
+                if (ctx.operador_prefijo().DEC_OP() != null || ctx.operador_prefijo().DEC_OP() != null) {
+                    if ((ctx.expresion_primaria().ID()) != null) {
+                        /* CHECK ID() es declarada y es variable */
+                        String nombreVariabile = ctx.expresion_primaria().ID().getText();
+                        help.checkIncremento(ctx, nombreVariabile);
+                    } else
+                        help.printError(ctx, "Sólo se puede incrementar o decrementar una variable");
 
-            if (var != null) {
-                if (var instanceof Funcion) {
-                    help.printError(ctx, "no es posible incrementar o decrementar un valor de tipo \'"
-                            + var.toString() + "\' ");
-                } else
-                    var.setUsado(true);
+                }
+            } else if (ctx.operador_postfijo() != null) {
+
+                String nombreVariable = ctx.ID().getText();
+                help.checkIncremento(ctx, nombreVariable);
             }
 
         }
@@ -222,9 +228,9 @@ public class Escucha extends compiladorBaseListener {
     public void exitSalto(SaltoContext ctx) {
         if (ctx.RETURN() != null) {
             if (ctx.expresion() != null)
-                help.setEstadoReturn(EstadoReturn.CON_ARGS);
+                help.setEstadoReturn(EstadoReturn.RET_VAL);
             else
-                help.setEstadoReturn(EstadoReturn.SIN_ARGS);
+                help.setEstadoReturn(EstadoReturn.RET_VOID);
             help.checkReturn(ctx);
         }
 

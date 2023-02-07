@@ -1,9 +1,26 @@
 
-int main(int, int)
+int main()
 {
-    int a, b;
+    int x, a, c;
 
-    b = 3 - 9 / b-- + 5 * a++;
+    // x = a + 0;
+    // x = 0 + a;
+
+    // x = a - 0;
+    // x = 0 - a;
+    // x = a - a;
+
+    // x = a * 1;
+    // x = 1 * a;
+    // x = a * -2;
+    // x = -2 * a;
+
+    x = -(3 + a - 7);
+
+    // x = a * - 1;
+    // x = - 1 * a;
+
+    // b = 3 - 9 / b-- + 5 * a++;
 
     return 4;
 }
