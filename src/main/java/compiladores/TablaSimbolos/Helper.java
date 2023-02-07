@@ -120,10 +120,13 @@ public class Helper {
                     ts.buscarSimbolo(lastId).setInicializado(true);
             } else {
                 /**
-                 * se è definizione => cerca se già c'è => se già c'è controlla che i parametri
-                 * siano uguali e non lo aggiungere
+                 * si es definición => buscar si ya existe => si ya existe comprobar que los
+                 * parámetros son iguales y no lo suman
                  */
-                /* Se non c'è lo aggiungi e setti inizializado seno solo setta inizializzato */
+                /*
+                 * Si no está, añádelo y configúralo como inicializado. Si no, simplemente
+                 * configúralo como inicializado.
+                 */
                 if (esDefinicion) {
                     Funcion funcionDeclarada = (Funcion) ts.buscarSimbolo(lastFuncion.getNombre());
                     if (funcionDeclarada != null) {
