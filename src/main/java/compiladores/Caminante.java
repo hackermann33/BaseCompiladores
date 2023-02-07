@@ -38,14 +38,11 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     private int p;
     private String operacionPostfija;
     private String codigoTresStr = "";
+    private boolean esDefinicion;
+    private boolean salto;
 
     @Override
     public Object visitBloque(BloqueContext ctx) {
-        // codigoTresStr += String.format(" == Bloque tiene " + ctx.getChildCount() + "
-        // hijos");
-        // codigoTresStr += String.format(" == Hijo 0 -> " + ctx.getChild(0).getText());
-        // codigoTresStr += String.format(" == Hijo 1 -> " + ctx.getChild(1).getText());
-        // codigoTresStr += String.format(" == Hijo 2 -> " + ctx.getChild(2).getText());
         return super.visitBloque(ctx);
     }
 
@@ -263,10 +260,10 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             /* Funcion (llamada) */
         } else if (ctx.children.size() == 4) {
             codigoTresStr += "//funcion call: " + ctx.getText() + "\n";
-            codigoTresStr += String.format((String) super.visit(ctx.lista_parametros_expresiones()) + "\n");
-            codigoTresStr += String.format("push l" + l + "\n");
-            codigoTresStr += String.format("jump " + ctx.ID() + "\n");
-            codigoTresStr += String.format("label l" + l++ + "\n");
+            super.visit(ctx.lista_parametros_expresiones());
+            // codigoTresStr += String.format("push l" + l + "\n");
+            codigoTresStr += String.format("jmp " + ctx.ID() + "\n");
+            // codigoTresStr += String.format("label l" + l++ + "\n");
             TablaSimbolos ts = TablaSimbolos.getInstanceOf();
             if (ts.buscarSimboloLocal(ctx.ID().getText()).getTipo() != TipoDato.VOID)
                 codigoTresStr += String.format("pop res" + r + "\n");
@@ -327,13 +324,12 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             codigoTresStr += String.format("jmp l" + oldL + "\n");
             codigoTresStr += String.format("label l" + (oldL2) + "\n");
             return "l" + l;
-        } else if (ctx.getChild(0).getText().equals("do")) { /* TODO: check dowhile */
+        } else if (ctx.getChild(0).getText().equals("do")) {
             int oldL = l;
             codigoTresStr += String.format("label l" + l++ + "\n");
             super.visit(ctx.statement());
             String cond = (String) super.visit(ctx.expresion());
             codigoTresStr += String.format("ifjmp " + cond + ",l" + oldL + "\n");
-            //codigoTresStr += String.format("jmp l" + oldL + "\n");
             return "l" + l;
         } else if (ctx.getChild(0).getText().equals("for")) {
             ParseTree initIstr, condIstr;
@@ -375,9 +371,9 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             } else
                 codigoTresStr += String.format(ctx.getText());
 
-            return "t" + n;
+            return id;
         }
-        return super.visitInit_declarador(ctx);
+        return esDefinicion ? ctx.start.getText() : super.visitInit_declarador(ctx);
     }
 
     @Override
@@ -399,12 +395,18 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitDefinicion_funcion(Definicion_funcionContext ctx) {
+        esDefinicion = true;
         codigoTresStr += "//definicion funcion: " + ctx.getText() + "\n";
         p = 0;
-        super.visit(ctx.init_declarador());
+        codigoTresStr += "label " + super.visit(ctx.init_declarador()) + "\n";
         codigoTresStr += String.format("pop ret" + "\n");
         String res = (String) super.visit(ctx.bloque());
-        codigoTresStr += String.format("jump ret" + "\n");
+        if (!salto) {
+            codigoTresStr += String.format("jmp ret" + "\n");
+            salto = false;
+        }
+
+        esDefinicion = false;
 
         return res;
     }
@@ -416,7 +418,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
 
     @Override
     public Object visitLista_parametros(Lista_parametrosContext ctx) {
-        if (ctx.declaracion_parametro() != null)
+        if (ctx.declaracion_parametro() != null && esDefinicion)
             codigoTresStr += String.format("pop param" + p++ + "\n");
         return super.visitLista_parametros(ctx);
     }
@@ -424,6 +426,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     @Override
     public Object visitSalto(SaltoContext ctx) {
         if (ctx.RETURN() != null) {
+            salto = true;
             codigoTresStr += "//RETURN " + ctx.getText() + "\n";
             if (ctx.expresion() != null) {
                 String res = (String) super.visit(ctx.expresion());

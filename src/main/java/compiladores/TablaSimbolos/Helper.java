@@ -159,10 +159,11 @@ public class Helper {
     private boolean checkRedefinicion(ParserRuleContext ctx, String id) {
         Id simbolo;
         if ((simbolo = ts.buscarSimboloLocal(id)) != null) {
-            if ((simbolo instanceof Variable) || simbolo instanceof Funcion && !esDefinicion)
+            if ((simbolo instanceof Variable) || (simbolo instanceof Funcion && !esDefinicion)) {
                 printError(ctx, "identificador " + "\'" + id
                         + "\' ya usado en esto contexto!");
-            return false;
+                return false;
+            }
         }
 
         return true;

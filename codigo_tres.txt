@@ -1,64 +1,12 @@
-pop param0
-pop param1
-//definicion funcion: intmain(){inti,j,k,sum=0;{inti,j,k=i+2;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}do{sum+=3;}while(sum<100);}
+//definicion funcion: intf(){return3;}
+label f
 pop ret
-//operacion sum=0
-sum=0//operacion k=i+2
-k=i+2//operacion i=3+5
-i=3+5
-//iteracion for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}
-//operacion i=0
-i=0
-label l0
-t0 = i < 10
-ifnjmp t0,l1
-//iteracion for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}
-//operacion j=0
-j=0
-label l2
-t1 = j < 10
-ifnjmp t1,l3
-//operacion k=i*j
-k=i*j
-//operacion if(k%2==0){intj;sum+=k;}
-t2 = k % 2
-t3 = t2 == 0
-ifnjmp t3,l4
-//operacion sum+=k
-sum = sum + k
-label l4
-jmp l2
-label l3
-jmp l0
-label l1
-//iteracion while(sum>100){sum-=50;}
-label l5
-t4 = sum > 100
-ifnjmp t4,l6
-//operacion sum-=50
-sum = sum - 50
-jmp l5
-label l6
-//operacion ' if ( sum<50 ) {i=3;return123;} else {i=4;return123;}'
-t5 = sum < 50
-ifnjmp t5,l7
-//operacion i=3
-i=3
-//RETURN return123;
-push 123
+//RETURN return3;
+push 3
 jmp ret
-jmp l8
-label l7
-//operacion i=4
-i=4
-//RETURN return123;
-push 123
-jmp ret
-label l8
-//iteracion do{sum+=3;}while(sum<100);
-label l9
-//operacion sum+=3
-sum = sum + 3
-t6 = sum < 100
-ifjmp t6,l9
-jump ret
+//definicion funcion: intmain(){f();}
+label main
+pop ret
+//funcion call: f()
+jmp f
+pop res0
