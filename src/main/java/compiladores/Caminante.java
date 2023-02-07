@@ -83,7 +83,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     res = (String) super.visit(ctx.expresion_asignacion());
                     codigoTresStr += String.format("%s %s %s\n", id, op, res);
                 } else
-                    codigoTresStr += String.format(ctx.getText().replace("", " ").trim() + "\n");
+                    codigoTresStr += String.format(ctx.getText() + "\n");
             } else {
                 op = op.substring(0, 1);
                 if (ctx.getSourceInterval().b - ctx.getSourceInterval().a != 3) {
@@ -91,7 +91,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
                     codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, res);
                 } else {
                     codigoTresStr += String.format("%s %s %s %s %s\n", id, "=", id, op, ctx.stop.getText());
-                    codigoTresStr += String.format(ctx.getText().replace("", " ").trim() + "\n");
+                    codigoTresStr += String.format(ctx.getText() + "\n");
                 }
             }
 
@@ -306,10 +306,11 @@ public class Caminante extends compiladorBaseVisitor<Object> {
         String cond = (String) super.visit(ctx.expresion());
         codigoTresStr += String.format("ifnjmp %s,l%d\n", cond, l++);
         super.visit(ctx.statement(0));
-        codigoTresStr += String.format("jmp l%d\n", l);
+        int oldL2 = l;
+        codigoTresStr += String.format("jmp l%d\n", l++);
         codigoTresStr += String.format("label l" + oldL + "\n");
         super.visit(ctx.statement(1));
-        codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
+        codigoTresStr += String.format("label l" + (oldL2) + "\n");
         return "l" + l;
     }
 
@@ -317,15 +318,16 @@ public class Caminante extends compiladorBaseVisitor<Object> {
     public Object visitIteracion(IteracionContext ctx) {
         codigoTresStr += ("//iteracion " + ctx.getText() + "\n");
         if (ctx.getChild(0).getText().equals("while")) {
-            String cond = (String) super.visit(ctx.expresion());
             int oldL = l;
             codigoTresStr += String.format("label l" + l++ + "\n");
-            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l + "\n");
+            String cond = (String) super.visit(ctx.expresion());
+            int oldL2 = l;
+            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l++ + "\n");
             super.visit(ctx.statement());
             codigoTresStr += String.format("jmp l" + oldL + "\n");
-            codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
-            return "l" + l++;
-        } else if (ctx.getChild(0).getText().equals("do")) {
+            codigoTresStr += String.format("label l" + (oldL2) + "\n");
+            return "l" + l;
+        } else if (ctx.getChild(0).getText().equals("do")) { /* TODO: check dowhile */
             int oldL = l;
             codigoTresStr += String.format("label l" + l++ + "\n");
             super.visit(ctx.statement());
@@ -340,16 +342,19 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             condIstr = ctx.expression_statement(1).expresion();
 
             super.visit(initIstr);
-            String cond = (String) super.visit(condIstr);
             int oldL = l;
             codigoTresStr += String.format("label l" + l++ + "\n");
-            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l + "\n");
+            String cond = (String) super.visit(condIstr);
+            int oldL2 = l;
+
+            codigoTresStr += String.format("ifnjmp " + cond + ",l" + l++ + "\n");
+
             if (ctx.expresion() != null)
                 super.visit(ctx.expresion());
             super.visit(ctx.statement());
             codigoTresStr += String.format("jmp l" + oldL + "\n");
-            codigoTresStr += String.format("label l" + (oldL + 1) + "\n");
-            return "l" + l++;
+            codigoTresStr += String.format("label l" + (oldL2) + "\n");
+            return "l" + l;
         }
 
         return super.visitIteracion(ctx);

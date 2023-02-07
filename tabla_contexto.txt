@@ -38,9 +38,9 @@ Tabla de símbolos:
  1   | sum   | int sum                     | true   | false   |
  1   | k     | int k                       | false  | false   |
 +----+-------+-----------------------------+--------+---------+
- 2   | i     | int i                       | false  | false   |
+ 2   | i     | int i                       | false  | true    |
  2   | j     | int j                       | false  | false   |
- 2   | k     | int k                       | false  | false   |
+ 2   | k     | int k                       | true   | false   |
 +----+-------+-----------------------------+--------+---------+
 
 [1 -> 2] entrando en el nuevo contexto 2

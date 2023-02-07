@@ -1,62 +1,58 @@
 pop param0
-//definicion funcion: intmain(){f(4);inti,j,k,sum=0;{inti,j,k;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}}
+pop param1
+//definicion funcion: intmain(){inti,j,k,sum=0;{inti,j,k=i+2;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}}
 pop ret
-//funcion call: f(4)
-4
-push l0
-jump f
-label l0
-pop res0
 //operacion sum=0
-sum=0//operacion i=3+5
-i = 3 + 5
+sum=0//operacion k=i+2
+k=i+2//operacion i=3+5
+i=3+5
 //iteracion for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}
 //operacion i=0
-i = 0
+i=0
+label l0
 t0 = i < 10
-label l1
-ifnjmp t0,l2
+ifnjmp t0,l1
 //iteracion for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}
 //operacion j=0
-j = 0
-t1 = j < 10
+j=0
 label l2
+t1 = j < 10
 ifnjmp t1,l3
 //operacion k=i*j
-k = i * j
+k=i*j
 //operacion if(k%2==0){intj;sum+=k;}
 t2 = k % 2
 t3 = t2 == 0
-ifnjmp t3,l3
+ifnjmp t3,l4
 //operacion sum+=k
 sum = sum + k
-label l3
+label l4
 jmp l2
 label l3
-jmp l1
-label l2
+jmp l0
+label l1
 //iteracion while(sum>100){sum-=50;}
+label l5
 t4 = sum > 100
-label l6
-ifnjmp t4,l7
+ifnjmp t4,l6
 //operacion sum-=50
 sum = sum - 50
-jmp l6
-label l7
+jmp l5
+label l6
 //operacion ' if ( sum<50 ) {i=3;return123;} else {i=4;return123;}'
 t5 = sum < 50
-ifnjmp t5,l8
+ifnjmp t5,l7
 //operacion i=3
-i = 3
+i=3
 //RETURN return123;
 push 123
 jmp ret
-jmp l9
-label l8
+jmp l8
+label l7
 //operacion i=4
-i = 4
+i=4
 //RETURN return123;
 push 123
 jmp ret
-label l9
+label l8
 jump ret

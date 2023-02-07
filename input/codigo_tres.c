@@ -4,7 +4,7 @@ int main()
 {
     int i, j, k, sum = 0;
     {
-        int i, j, k;
+        int i, j, k = i +2;
     }
 
     i = 3 + 5;

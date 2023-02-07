@@ -22,8 +22,6 @@ public class App {
         // create Listener
         compiladorBaseListener escucha = new Escucha();
 
-        System.out.println(((Escucha) escucha).errors);
-
         // Conecto el objeto con Listeners al parser
         parser.addParseListener(escucha);
 
@@ -45,7 +43,7 @@ public class App {
         visitor.visit(tree);
 
         OptimizadorTAC optimizador = new OptimizadorTAC("codigo_tres.txt");
-        //optimizador.optimiza();
+        // optimizador.optimiza();
         // System.out.println(visitor);
         // System.out.println(visitor.getErrorNodes());
         // Imprime el arbol obtenido

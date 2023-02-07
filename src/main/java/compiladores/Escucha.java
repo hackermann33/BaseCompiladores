@@ -175,15 +175,6 @@ public class Escucha extends compiladorBaseListener {
         return TipoDato.valueOf(dpctx.specificador_tipo().getChild(0).toString().toUpperCase());
     }
 
-    // @Override
-    // public void exitIteracion(IteracionContext ctx) {
-    // if (ctx.FOR() != null) {
-    // ts.delContexto();
-    // contexto--;
-    // }
-    // super.exitIteracion(ctx);
-    // }
-
     @Override
     public void exitExpresion_postfija(Expresion_postfijaContext ctx) {
         if (ctx.children.size() == 4) {
