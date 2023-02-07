@@ -4,7 +4,7 @@ int main()
 {
     int i, j, k, sum = 0;
     {
-        int i, j, k = i +2;
+        int i, j, k = i + 2;
     }
 
     i = 3 + 5;
@@ -34,4 +34,10 @@ int main()
         i = 4;
         return 123;
     }
+
+    do
+    {
+        sum += 3;
+
+    } while (sum < 100);
 }

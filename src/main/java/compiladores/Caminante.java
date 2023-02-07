@@ -333,7 +333,7 @@ public class Caminante extends compiladorBaseVisitor<Object> {
             super.visit(ctx.statement());
             String cond = (String) super.visit(ctx.expresion());
             codigoTresStr += String.format("ifjmp " + cond + ",l" + oldL + "\n");
-            codigoTresStr += String.format("jmp l" + oldL + "\n");
+            //codigoTresStr += String.format("jmp l" + oldL + "\n");
             return "l" + l;
         } else if (ctx.getChild(0).getText().equals("for")) {
             ParseTree initIstr, condIstr;

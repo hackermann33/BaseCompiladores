@@ -1,6 +1,6 @@
 pop param0
 pop param1
-//definicion funcion: intmain(){inti,j,k,sum=0;{inti,j,k=i+2;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}}
+//definicion funcion: intmain(){inti,j,k,sum=0;{inti,j,k=i+2;}i=3+5;for(i=0;i<10;i++){for(j=0;j<10;j++){k=i*j;if(k%2==0){intj;sum+=k;}}}while(sum>100){sum-=50;}if(sum<50){i=3;return123;}else{i=4;return123;}do{sum+=3;}while(sum<100);}
 pop ret
 //operacion sum=0
 sum=0//operacion k=i+2
@@ -55,4 +55,10 @@ i=4
 push 123
 jmp ret
 label l8
+//iteracion do{sum+=3;}while(sum<100);
+label l9
+//operacion sum+=3
+sum = sum + 3
+t6 = sum < 100
+ifjmp t6,l9
 jump ret
